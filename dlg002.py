@@ -34,7 +34,7 @@ class Ui_Dialog(object):
         self.profname.setObjectName("profname")
         self.verticalLayout.addWidget(self.profname)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setMinimumSize(QtCore.QSize(0, 0))
+        self.buttonBox.setMinimumSize(QtCore.QSize(33, 33))
         self.buttonBox.setStyleSheet("selection-background-color: rgb(255, 119, 0);")
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
@@ -49,4 +49,4 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p>Имя профиля:</p></body></html>"))
+        self.label.setText(_translate("Dialog", "Имя профиля:"))

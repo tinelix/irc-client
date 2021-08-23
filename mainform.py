@@ -108,7 +108,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.verticalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 544, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 544, 29))
         self.menubar.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
@@ -128,7 +128,6 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.connect_item)
         self.menu.addAction(self.quit_item)
         self.menu_2.addAction(self.about_item)
-        self.menu_2.addAction(self.about_Qt_item)
         self.menubar.addAction(self.menu.menuAction())
         self.menubar.addAction(self.menu_2.menuAction())
 
@@ -137,7 +136,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Tinelix Flight"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Tinelix IRC Client"))
         self.send_msg_btn.setText(_translate("MainWindow", "Отправить"))
         self.conn_quality_label.setText(_translate("MainWindow", "Качество соединения:"))
         self.conn_quality_progr.setFormat(_translate("MainWindow", "%p%"))

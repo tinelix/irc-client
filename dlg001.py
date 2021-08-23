@@ -38,10 +38,10 @@ class Ui_Dialog(object):
         self.language_combo.setObjectName("language_combo")
         self.verticalLayout_2.addWidget(self.language_combo)
         self.verticalLayout.addLayout(self.verticalLayout_2)
-        self.label_3 = QtWidgets.QLabel(Dialog)
-        self.label_3.setMaximumSize(QtCore.QSize(16777215, 16))
-        self.label_3.setObjectName("label_3")
-        self.verticalLayout.addWidget(self.label_3)
+        self.profiles_name = QtWidgets.QLabel(Dialog)
+        self.profiles_name.setMaximumSize(QtCore.QSize(16777215, 16))
+        self.profiles_name.setObjectName("profiles_name")
+        self.verticalLayout.addWidget(self.profiles_name)
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(161, 75, 0);")
@@ -54,7 +54,7 @@ class Ui_Dialog(object):
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(1, item)
         self.tableWidget.verticalHeader().setVisible(False)
-        self.tableWidget.verticalHeader().setDefaultSectionSize(23)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(29)
         self.verticalLayout.addWidget(self.tableWidget)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
@@ -95,10 +95,10 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Tinelix Flight"))
+        Dialog.setWindowTitle(_translate("Dialog", "Tinelix IRC Client"))
         self.title_label.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:11pt; font-weight:600;\">Первоначальная настройка клиента</span></p></body></html>"))
-        self.language_label.setText(_translate("Dialog", "Язык:"))
-        self.label_3.setText(_translate("Dialog", "Профили:"))
+        self.language_label.setText(_translate("Dialog", "Язык (Language):"))
+        self.profiles_name.setText(_translate("Dialog", "Профили:"))
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("Dialog", "Профиль"))
         item = self.tableWidget.horizontalHeaderItem(1)

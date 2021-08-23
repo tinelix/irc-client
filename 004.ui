@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>437</width>
+    <height>362</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>О клиенте Tinelix IRC</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(43, 43, 43);
+color: rgb(255, 255, 255);</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QGraphicsView" name="icon">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="progname">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">selection-color: rgb(255, 119, 0);</string>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tinelix IRC Client &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;(codename Flight, 0.0.1 Alpha)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="description_label">
+       <property name="styleSheet">
+        <string notr="true">selection-color: rgb(255, 119, 0);</string>
+       </property>
+       <property name="text">
+        <string>(description)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="styleSheet">
+        <string notr="true">selection-color: rgb(255, 119, 0);</string>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Это свободное программное обеспечение с открытым исходным кодом, распространяемое в соответствии с условиями &lt;a href=&quot;https://www.gnu.org/licenses/gnu-3.0.ru.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1d99f3;&quot;&gt;GNU General Public License 3.0 (прочитать лицензию)&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;.&lt;br&gt;&lt;br&gt;БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ВКЛЮЧАЯ КОММЕРЧЕСКУЮ ЦЕННОСТЬ.&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="repo_btn">
+       <property name="text">
+        <string>Репозиторий</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

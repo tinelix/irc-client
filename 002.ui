@@ -33,7 +33,7 @@ color: rgb(255, 255, 255);</string>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Имя профиля:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Имя профиля:</string>
      </property>
     </widget>
    </item>
@@ -58,8 +58,8 @@ color: rgb(255, 255, 255);</string>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="minimumSize">
       <size>
-       <width>0</width>
-       <height>0</height>
+       <width>33</width>
+       <height>33</height>
       </size>
      </property>
      <property name="styleSheet">

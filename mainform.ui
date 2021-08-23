@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Tinelix Flight</string>
+   <string>Tinelix IRC Client</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(43, 43, 43);
@@ -251,7 +251,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>544</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -272,7 +272,6 @@ color: rgb(255, 255, 255);</string>
      <string>Справка</string>
     </property>
     <addaction name="about_item"/>
-    <addaction name="about_Qt_item"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>

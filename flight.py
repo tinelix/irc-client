@@ -1,4 +1,7 @@
-import sys, PyQt5, dlg001, configparser, time, threading, socket
+#!/usr/bin/python3
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator
+import languages.ru_RU as ru_RU
+import languages.en_US as en_US
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -7,9 +10,12 @@ from mainform import Ui_MainWindow
 from dlg001 import Ui_Dialog as swiz_001
 from dlg002 import Ui_Dialog as swiz_002
 from dlg003 import Ui_Dialog as swiz_003
+from dlg004 import Ui_Dialog as aboutprg
 
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
+
+version = '0.0.2 Alpha'
 
 class Thread(QThread):
     logged = QtCore.pyqtSignal(str)
@@ -51,22 +57,81 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         super(mainform, self).__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.about_item.triggered.connect(self.about_window)
+        self.ui.connect_item.triggered.connect(self.connect_window)
+        self.ui.quit_item.triggered.connect(self.quit_app)
         self.ui.conn_quality_progr.setValue(0)
         self.ui.latency_label.setText("No signal")
-        profiles.read('profiles')
         self.child = SettingsWizard001(self)
+        self.child_2 = SettingsWizard002()
+        self.child_3 = SettingsWizard003()
+        self.child_4 = AboutProgramDlg()
         settings.read('settings')
         profiles.read('profiles')
-        print('Tinelix codename Flight v. 0.0.1 (alpha) (2021-08-23)\nDone!')
+        print('Tinelix codename Flight {0} (alpha) (2021-08-23)\nDone!'.format(version))
 
-        if settings.sections() == [] or profiles.sections() == []:
+        if settings.sections() == []:
             settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
+        else:
+            translator.translate_001(self, self.child.ui, settings['Main']['Language'], en_US, ru_RU)
 
         #swiz001 = SettingsWizard001()
         self.child.show()
+        try:
+            self.child.ui.language_combo.setCurrentText(settings['Main']['Language'])
+        except Exception as e:
+            print(e)
+        self.child.ui.language_combo.currentIndexChanged.connect(self.change_language)
 
+    def change_language(self):
+        index = self.child.ui.language_combo.currentIndex()
+        print(index)
+        try:
+            if index == 0:
+                settings['Main']['Language'] = 'Russian'
+                with open('settings', 'w') as configfile:
+                    settings.write(configfile)
+                translator.translate_001(self, self.child.ui, 'Russian', en_US, ru_RU)
+            else:
+                settings['Main']['Language'] = 'English'
+                with open('settings', 'w') as configfile:
+                    settings.write(configfile)
+                translator.translate_001(self, self.child.ui, 'English', en_US, ru_RU)
+            settings.read('settings')
+
+        except Exception as e:
+            print('Exception: {0}'.format(e))
+
+    def about_window(self):
+        settings.read('settings')
+        self.version = version
+        if settings.sections() == []:
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled'}
+            with open('settings', 'w') as configfile:
+                settings.write(configfile)
+            translator.translate_004(self, self.child_4.ui, 'Russian', en_US, ru_RU)
+        else:
+            translator.translate_004(self, self.child_4.ui, settings['Main']['Language'], en_US, ru_RU)
+        self.child_4.exec_()
+
+    def connect_window(self):
+        self.child.ui.language_label.setVisible(False)
+        self.child.ui.language_combo.setVisible(False)
+        self.child.exec_()
+
+    def quit_app(self):
+        print('Quiting...')
+        self.close()
+
+class AboutProgramDlg(QtWidgets.QDialog, swiz_001):
+    def __init__(self, parent=None):
+        super(AboutProgramDlg, self).__init__(parent)
+        self.ui = aboutprg()
+        self.ui.setupUi(self)
+        self.parent = parent
+        settings.read('settings')
 
 class SettingsWizard003(QtWidgets.QDialog):
 
@@ -74,6 +139,7 @@ class SettingsWizard003(QtWidgets.QDialog):
         super().__init__()
         self.ui = swiz_003()
         self.ui.setupUi(self)
+        settings.read('settings')
         self.ui.buttonBox.accepted.connect(self.save_profile)
         self.ui.buttonBox.accepted.connect(self.save_profile)
         self.ui.clear_nicknames_btn.clicked.connect(self.clear_nicknames)
@@ -86,12 +152,16 @@ class SettingsWizard003(QtWidgets.QDialog):
         self.timer.stop()
 
     def show_create_nickname_dlg(self):
-        print(self.ui.nicknames_combo.count())
         index = self.ui.nicknames_combo.currentIndex()
         if index == self.ui.nicknames_combo.count() - 1:
             self.close()
             swiz002 = SettingsWizard002()
-            swiz002.ui.label.setText('Никнейм:')
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                swiz002.ui.label.setText(ru_RU.get()['chnicknm'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                swiz002.ui.label.setText(en_US.get()['chnicknm'])
+            else:
+                swiz002.ui.label.setText(ru_RU.get()['chnicknm'])
             swiz002.ui.profname.setText(self.ui.profname_box.text())
             swiz002.exec_()
 
@@ -100,7 +170,7 @@ class SettingsWizard003(QtWidgets.QDialog):
 
     def save_profile(self):
         try:
-            profiles.read('profilles')
+            profiles.read('profiles')
             nicknames_list = []
             for index in range(self.ui.nicknames_combo.count()):
                 if index < (self.ui.nicknames_combo.count() - 1):
@@ -115,13 +185,17 @@ class SettingsWizard003(QtWidgets.QDialog):
         self.ui.nicknames_combo.currentIndexChanged.disconnect()
         self.ui.nicknames_combo.clear()
         self.ui.nicknames_combo.addItem('')
+        settings.read('settings')
         try:
             profiles[str(self.ui.profname_box.text())]['Nicknames'] = ''
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
                 print(e)
-        self.ui.nicknames_combo.addItem('Создать никнейм...')
+        if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+            self.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
+        elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+            self.ui.nicknames_combo.addItem(en_US.get()['makenick'])
         self.ui.clear_nicknames_btn.setEnabled(False)
         self.ui.clear_nicknames_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
         self.timer.start(200)
@@ -132,20 +206,22 @@ class SettingsWizard002(QtWidgets.QDialog):
         self.ui = swiz_002()
         self.ui.setupUi(self)
         self.ui.buttonBox.accepted.connect(self.show_custom_edit_dlg)
+        self.ui.profname.setVisible(False)
 
     def show_custom_edit_dlg(self):
+        settings.read('settings')
         profiles.read('profiles')
         if profiles.sections() == []:
             profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': ''}
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
-        if self.ui.label.text() == '<html><head/><body><p>Имя профиля:</p></body></html>':
+        if self.ui.label.text() == en_US.get()['chprofnm'] or self.ui.label.text() == ru_RU.get()['chprofnm']:
             swiz003 = SettingsWizard003()
             swiz003.ui.title_label.setText(str(self.ui.lineEdit.text()))
             swiz003.ui.profname_box.setText(str(self.ui.lineEdit.text()))
             profiles.read('profiles')
             try:
-                if profiles.sections() != [] and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != "" and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != " " and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != None:
+                if profiles.sections() != [] or profiles[str(self.ui.lineEdit.text())]['Nicknames'] != "" and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != " " and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != None:
                     for nick in list(profiles[str(self.ui.lineEdit.text())]['Nicknames'].split(", ")):
                         if nick != "" and nick != " ":
                             swiz003.ui.nicknames_combo.addItem(nick)
@@ -159,7 +235,10 @@ class SettingsWizard002(QtWidgets.QDialog):
             except Exception as e:
                 if swiz003.ui.nicknames_combo.count() == 0:
                     swiz003.ui.nicknames_combo.addItem('')
-            swiz003.ui.nicknames_combo.addItem('Создать никнейм...')
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                swiz003.ui.nicknames_combo.addItem(en_US.get()['makenick'])
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
@@ -167,8 +246,9 @@ class SettingsWizard002(QtWidgets.QDialog):
                 swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.lineEdit.text())]['encoding'])
             except Exception as e:
                 print(e)
+            translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
             swiz003.exec_()
-        elif self.ui.label.text() == 'Никнейм:':
+        elif self.ui.label.text() == en_US.get()['chnicknm'] or self.ui.label.text() == ru_RU.get()['chnicknm']:
             swiz003 = SettingsWizard003()
             profiles.read('profiles')
             try:
@@ -187,10 +267,14 @@ class SettingsWizard002(QtWidgets.QDialog):
                 print(e)
             swiz003.ui.title_label.setText(str(self.ui.profname.text()))
             swiz003.ui.profname_box.setText(str(self.ui.profname.text()))
-            swiz003.ui.nicknames_combo.addItem('Создать никнейм...')
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                swiz003.ui.nicknames_combo.addItem(en_US.get()['makenick'])
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
+            translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
             swiz003.exec_()
 
 class SettingsWizard001(QtWidgets.QDialog, swiz_001):
@@ -236,6 +320,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
 
     def show_custom_edit_dlg(self):
         swiz002 = SettingsWizard002()
+        settings.read('settings')
+        if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+            swiz002.ui.label.setText(ru_RU.get()['chprofnm'])
+        elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+            swiz002.ui.label.setText(en_US.get()['chprofnm'])
         swiz002.exec_()
 
     def irc_connect(self):
@@ -255,6 +344,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         swiz003.ui.title_label.setText(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()))
         swiz003.ui.profname_box.setText(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()))
         profiles.read('profiles')
+        settings.read('settings')
         try:
             if profiles.sections() != [] and profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Nicknames'] != "" and profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Nicknames'] != " " and profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Nicknames'] != None:
                 for nick in list(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Nicknames'].split(", ")):
@@ -270,7 +360,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         except Exception as e:
             if swiz003.ui.nicknames_combo.count() == 0:
                 swiz003.ui.nicknames_combo.addItem('')
-        swiz003.ui.nicknames_combo.addItem('Создать никнейм...')
+        if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+            swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
+        elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+            swiz003.ui.nicknames_combo.addItem(en_US.get()['makenick'])
         swiz003.ui.encoding_combo.addItem('UTF-8')
         swiz003.ui.encoding_combo.addItem('Windows-1251')
         swiz003.ui.encoding_combo.addItem('DOS (866)')
@@ -278,6 +371,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['encoding'])
         except Exception as e:
             print(e)
+        translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
         swiz003.exec_()
 
     def del_item(self):

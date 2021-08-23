@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Свойства профиля</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(43, 43, 43);
@@ -46,7 +46,7 @@ color: rgb(255, 255, 255);</string>
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="main_tab">
       <attribute name="title">
        <string>Общие</string>
       </attribute>
@@ -67,25 +67,48 @@ color: rgb(255, 255, 255);</string>
            <property name="styleSheet">
             <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
            </property>
+           <item>
+            <property name="text">
+             <string>(not implemented)</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="profname_label">
+           <property name="minimumSize">
+            <size>
+             <width>126</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>126</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Имя:</string>
            </property>
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="authm_label">
+           <property name="minimumSize">
+            <size>
+             <width>126</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
+             <width>126</width>
              <height>16777215</height>
             </size>
            </property>
            <property name="text">
-            <string>Метод аутентификации:</string>
+            <string>Метод аутентиф-ии:</string>
            </property>
           </widget>
          </item>
@@ -103,7 +126,7 @@ color: rgb(255, 255, 255);</string>
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="nicknames_label">
            <property name="minimumSize">
             <size>
              <width>126</width>
@@ -158,7 +181,7 @@ color: rgb(255, 255, 255);</string>
           <number>0</number>
          </property>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="password_label">
            <property name="minimumSize">
             <size>
              <width>126</width>
@@ -207,7 +230,7 @@ border-color: rgb(255, 119, 0);</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="conn_tab">
       <attribute name="title">
        <string>Подключение</string>
       </attribute>
@@ -220,7 +243,7 @@ border-color: rgb(255, 119, 0);</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -234,7 +257,7 @@ border-color: rgb(255, 119, 0);</string>
             <number>6</number>
            </property>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="server_label">
              <property name="text">
               <string>Сервер:</string>
              </property>
@@ -249,7 +272,7 @@ border-color: rgb(255, 119, 0);</string>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="encoding_label">
              <property name="text">
               <string>Кодировка:</string>
              </property>
@@ -290,7 +313,7 @@ border-color: rgb(255, 119, 0);</string>
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="port_label">
              <property name="text">
               <string>Порт:</string>
              </property>
@@ -302,7 +325,7 @@ border-color: rgb(255, 119, 0);</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="ident_tab">
       <attribute name="title">
        <string>Идентификация</string>
       </attribute>
@@ -310,7 +333,7 @@ border-color: rgb(255, 119, 0);</string>
        <item>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="quitmsg_label">
            <property name="text">
             <string>Сообщение при выходе:</string>
            </property>
@@ -323,7 +346,7 @@ border-color: rgb(255, 119, 0);</string>
 border-color: rgb(255, 119, 0);</string>
            </property>
            <property name="text">
-            <string>Tinelix codename Flight 0.0.0 (alpha)</string>
+            <string>Tinelix IRC server (codename Flight, 0.0.2 Alpha)</string>
            </property>
           </widget>
          </item>
