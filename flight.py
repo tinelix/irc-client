@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -48,6 +48,7 @@ class Thread(QThread):
                 except Exception as e:
                     print('Exception: {0}'.format(e))
                     self.started.emit('Exception: {0}'.format(str(e)))
+                    self.socket.close()
 
     def kill(self):
         self.quit()
@@ -132,6 +133,10 @@ class AboutProgramDlg(QtWidgets.QDialog, swiz_001):
         self.ui.setupUi(self)
         self.parent = parent
         settings.read('settings')
+        self.ui.repo_btn.clicked.connect(self.repo_open)
+
+    def repo_open(self):
+        webbrowser.open('https://github.com/tinelix/irc-client')
 
 class SettingsWizard003(QtWidgets.QDialog):
 
@@ -408,6 +413,5 @@ app = QtWidgets.QApplication([])
 app.setStyle('Fusion')
 application = mainform()
 application.show()
-
 
 sys.exit(app.exec())
