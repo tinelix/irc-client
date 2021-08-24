@@ -510,7 +510,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 pass
         elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith == '/quit':
             settings.read('settings')
-            self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[section]['Server']['quitingmsg']), self.encoding))
+            self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
             self.socket.close()
         elif self.channel != None:
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
