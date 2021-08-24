@@ -18,7 +18,7 @@ from dlg004 import Ui_Dialog as aboutprg
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.1 Beta'
+version = '0.1.1 Beta'
 date = '2021-08-24'
 
 enckey = Fernet.generate_key()
@@ -257,7 +257,7 @@ class SettingsWizard002(QtWidgets.QDialog):
         profiles.read('profiles')
         if self.ui.label.text() == en_US.get()['chprofnm'] or self.ui.label.text() == ru_RU.get()['chprofnm']:
             if profiles.sections() == [] or search(profiles.sections(), self.ui.lineEdit.text()) == False:
-                profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': ''}
+                profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': 'Tinelix IRC Client ver. {0} ({1})'.format(version, date)}
                 with open('profiles', 'w') as configfile:
                     profiles.write(configfile)
             swiz003 = SettingsWizard003()
@@ -340,6 +340,7 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.authmethod_combo.addItem('Без аутентификации')
             try:
                 swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.profname.text())]['encoding'])
+                swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.profname.text())]['quitingmsg'])
             except:
                 pass
             translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)

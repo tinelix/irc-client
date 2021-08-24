@@ -157,6 +157,7 @@ class Ui_Dialog(object):
         self.quiting_msg_box = QtWidgets.QLineEdit(self.ident_tab)
         self.quiting_msg_box.setStyleSheet("selection-background-color: rgb(161, 75, 0);\n"
 "border-color: rgb(255, 119, 0);")
+        self.quiting_msg_box.setText("")
         self.quiting_msg_box.setObjectName("quiting_msg_box")
         self.gridLayout_3.addWidget(self.quiting_msg_box, 0, 1, 1, 1)
         self.verticalLayout_4.addLayout(self.gridLayout_3)
@@ -195,5 +196,4 @@ class Ui_Dialog(object):
         self.port_label.setText(_translate("Dialog", "Порт:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.conn_tab), _translate("Dialog", "Подключение"))
         self.quitmsg_label.setText(_translate("Dialog", "Сообщение при выходе:"))
-        self.quiting_msg_box.setText(_translate("Dialog", "Tinelix IRC server (codename Flight, 0.0.2 Alpha)"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.ident_tab), _translate("Dialog", "Идентификация"))
