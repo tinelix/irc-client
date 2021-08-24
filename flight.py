@@ -479,7 +479,6 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.ui.chat_text.moveCursor(QTextCursor.End)
 
     def send_msg(self):
-        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
         if self.parent.ui.message_text.text().startswith('/join #'):
             msg_list = self.parent.ui.message_text.text().split(' ')
             self.channel = msg_list[1]
@@ -517,6 +516,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
         self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text()))
         self.parent.ui.message_text.setText('')
+        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
 
     def edit_item(self):
         swiz003 = SettingsWizard003()
