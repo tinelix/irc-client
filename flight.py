@@ -508,7 +508,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('INFO\r\n', self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith == '/quit':
+        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith('/quit'):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
             self.socket.close()
