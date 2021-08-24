@@ -83,7 +83,7 @@ class Ui_MainWindow(object):
         self.conn_quality_label.setObjectName("conn_quality_label")
         self.horizontalLayout_3.addWidget(self.conn_quality_label)
         self.conn_quality_progr = QtWidgets.QProgressBar(self.centralwidget)
-        self.conn_quality_progr.setMinimumSize(QtCore.QSize(0, 25))
+        self.conn_quality_progr.setMinimumSize(QtCore.QSize(0, 18))
         self.conn_quality_progr.setMaximumSize(QtCore.QSize(80, 16777215))
         font = QtGui.QFont()
         font.setPointSize(8)
