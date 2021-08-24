@@ -442,7 +442,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         try:
             profiles.read('profiles')
             print('Disconnecting...')
-            self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[section]['Server']['quitingmsg']), self.encoding))
+            self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg']), self.encoding))
             self.socket.close()
             self.ui.connect_btn.clicked.connect(self.irc_connect)
             settings.read('settings')
@@ -513,6 +513,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
             self.socket.close()
+            self.ui.connect_btn.clicked.connect(self.irc_connect)
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                self.ui.connect_btn.setText(ru_RU.get()['conn_btn'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                self.ui.connect_btn.setText(en_US.get()['conn_btn'])
         elif self.channel != None:
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
         self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text()))
