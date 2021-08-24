@@ -87,7 +87,7 @@ def translate_004(mainclass, form, language, en_US, ru_RU):
     form.progname.setText(en_US.get()['prog_ver'].format(mainclass.version))
     if language == 'Russian':
         try:
-            form.setWindowTitle(ru_RU.get()['about_tt'])
+            mainclass.child_4.setWindowTitle(ru_RU.get()['about_tt'])
             form.description_label.setText(ru_RU.get()['free_sft'].format(QT_VERSION_STR, PYQT_VERSION_STR))
             form.label.setText(ru_RU.get()['gpl_info'])
             form.repo_btn.setText(ru_RU.get()['repo_btn'])
@@ -95,10 +95,10 @@ def translate_004(mainclass, form, language, en_US, ru_RU):
             pass
     elif language == 'English':
         try:
-            form.setWindowTitle(en_US.get()['about_tt'])
+            mainclass.child_4.setWindowTitle(en_US.get()['about_tt'])
             form.description_label.setText(en_US.get()['free_sft'].format(QT_VERSION_STR, PYQT_VERSION_STR))
             form.label.setText(en_US.get()['gpl_info'])
             form.repo_btn.setText(en_US.get()['repo_btn'])
         except Exception as e:
-            pass
+            print(e)
 
