@@ -91,8 +91,8 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.conn_quality_progr.setFont(font)
         self.conn_quality_progr.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
-        self.conn_quality_progr.setMaximum(100)
-        self.conn_quality_progr.setProperty("value", 99)
+        self.conn_quality_progr.setMaximum(5000)
+        self.conn_quality_progr.setProperty("value", 4970)
         self.conn_quality_progr.setTextVisible(True)
         self.conn_quality_progr.setInvertedAppearance(False)
         self.conn_quality_progr.setTextDirection(QtWidgets.QProgressBar.TopToBottom)
@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.verticalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 544, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 544, 21))
         self.menubar.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
@@ -140,7 +140,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Tinelix IRC Client"))
-        self.message_text.setText(_translate("MainWindow", "На данный момент написать сообщение нельзя"))
+        self.message_text.setText(_translate("MainWindow", "На данный момент отправить сообщение нельзя"))
         self.send_msg_btn.setText(_translate("MainWindow", "Отправить"))
         self.conn_quality_label.setText(_translate("MainWindow", "Качество соединения:"))
         self.conn_quality_progr.setFormat(_translate("MainWindow", "%p%"))

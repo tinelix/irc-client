@@ -18,18 +18,24 @@ from dlg004 import Ui_Dialog as aboutprg
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.0.3 Alpha'
+version = '0.1 Beta'
 date = '2021-08-24'
 
 enckey = Fernet.generate_key()
 fernet = Fernet(enckey)
 
-class Thread(QThread):
-    logged = QtCore.pyqtSignal(str, str, int, str, str, str, socket.socket)
-    started = QtCore.pyqtSignal(str, str, int, str, str, str, socket.socket)
+def search(list, platform):
+    for i in range(len(list)):
+        if list[i] == platform:
+            return True
+    return False
 
-    def __init__(self, parent):
-        super().__init__()
+class Thread(QThread):
+    logged = QtCore.pyqtSignal(str, str, int, str, str, str, int, socket.socket)
+    started = QtCore.pyqtSignal(str, str, int, str, str, str, int, socket.socket)
+
+    def __init__(self, parent=None):
+        super(Thread, self).__init__(parent)
         self.parent = parent
     def run(self):
             profiles.read('profiles')
@@ -44,15 +50,19 @@ class Thread(QThread):
                 fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
                 self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
                 try:
+                    self.until_ping = time.time()
+                    threshold = 1 * 60
+                    self.ping = time.time()
                     self.socket.connect((self.server,self.port))
                     print('Connecting to {0}...'.format(self.server))
                     self.socket.setblocking(True)
                     self.socket.send(bytes("USER " + self.username + " " + self.username +" " + self.username + " :Testing\n", self.encoding))
                     self.socket.send(bytes("NICK " + self.username + "\n", self.encoding))
+
                     while True:
-                        time.sleep(0.5)
                         self.text=self.socket.recv(2040)
-                        self.started.emit(''.join(self.text.decode(self.encoding).split(":")), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.socket)
+                        self.ping = time.time()
+                        self.started.emit(''.join(self.text.decode(self.encoding).split(":")), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
                         msg_list = self.text.decode(self.encoding).splitlines()
                         for msg_line in msg_list:
                             if msg_line.startswith('PING :'):
@@ -62,7 +72,7 @@ class Thread(QThread):
                                     self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
                 except Exception as e:
                     print('Exception: {0}'.format(e))
-                    self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.socket)
+                    self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
                     self.socket.close()
 
     def kill(self):
@@ -77,7 +87,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.connect_item.triggered.connect(self.connect_window)
         self.ui.quit_item.triggered.connect(self.quit_app)
         self.ui.conn_quality_progr.setValue(0)
-        self.ui.latency_label.setText("No signal")
+        self.ui.latency_label.setText("")
         self.child = SettingsWizard001(self)
         self.child_2 = SettingsWizard002()
         self.child_3 = SettingsWizard003()
@@ -213,7 +223,7 @@ class SettingsWizard003(QtWidgets.QDialog):
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
-                print(e)
+                pass
 
     def clear_nicknames(self):
         self.ui.nicknames_combo.currentIndexChanged.disconnect()
@@ -245,15 +255,14 @@ class SettingsWizard002(QtWidgets.QDialog):
     def show_custom_edit_dlg(self):
         settings.read('settings')
         profiles.read('profiles')
-        if profiles.sections() == []:
-            profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': ''}
-            with open('profiles', 'w') as configfile:
-                profiles.write(configfile)
         if self.ui.label.text() == en_US.get()['chprofnm'] or self.ui.label.text() == ru_RU.get()['chprofnm']:
+            if profiles.sections() == [] or search(profiles.sections(), self.ui.lineEdit.text()) == False:
+                profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': ''}
+                with open('profiles', 'w') as configfile:
+                    profiles.write(configfile)
             swiz003 = SettingsWizard003()
             swiz003.ui.title_label.setText(str(self.ui.lineEdit.text()))
             swiz003.ui.profname_box.setText(str(self.ui.lineEdit.text()))
-            profiles.read('profiles')
             try:
                 if profiles.sections() != [] or profiles[str(self.ui.lineEdit.text())]['Nicknames'] != "" and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != " " and profiles[str(self.ui.lineEdit.text())]['Nicknames'] != None:
                     for nick in list(profiles[str(self.ui.lineEdit.text())]['Nicknames'].split(", ")):
@@ -276,6 +285,11 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
+            swiz003.ui.authmethod_combo.addItem('NickServ')
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                swiz003.ui.authmethod_combo.addItem(en_US.get()['w_o_auth'])
             try:
                 swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'])
             except:
@@ -289,12 +303,13 @@ class SettingsWizard002(QtWidgets.QDialog):
             try:
                 swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.lineEdit.text())]['encoding'])
             except Exception as e:
-                print(e)
+                pass
             translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
             swiz003.exec_()
         elif self.ui.label.text() == en_US.get()['chnicknm'] or self.ui.label.text() == ru_RU.get()['chnicknm']:
             swiz003 = SettingsWizard003()
             profiles.read('profiles')
+            swiz003.ui.profname_box.setText(str(self.ui.profname.text()))
             try:
                 if profiles[str(self.ui.profname.text())]['Nicknames'] != "" and profiles[str(self.ui.profname.text())]['Nicknames'] != " ":
                     profiles[str(self.ui.profname.text())]['Nicknames'] = profiles[str(self.ui.profname.text())]['Nicknames'] + ', ' + self.ui.lineEdit.text()
@@ -307,13 +322,13 @@ class SettingsWizard002(QtWidgets.QDialog):
                 for nick in list(profiles[str(self.ui.profname.text())]['Nicknames'].split(", ")):
                     if nick != "" and nick != " ":
                         swiz003.ui.nicknames_combo.addItem(nick)
-                    swiz003.ui.server_box.setText(profiles[str(self.ui.lineEdit.text())]['Server'])
-                    swiz003.ui.port_box.setValue(int(profiles[str(self.ui.lineEdit.text())]['Port']))
-                    swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.lineEdit.text())]['quitingmsg'])
+                swiz003.ui.server_box.setText(profiles[str(self.ui.profname.text())]['Server'])
+                swiz003.ui.port_box.setValue(int(profiles[str(self.ui.profname.text())]['Port']))
+                swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.profname.text())]['quitingmsg'])
             except Exception as e:
-                print(e)
+                if swiz003.ui.nicknames_combo.count() == 0:
+                    swiz003.ui.nicknames_combo.addItem('')
             swiz003.ui.title_label.setText(str(self.ui.profname.text()))
-            swiz003.ui.profname_box.setText(str(self.ui.profname.text()))
             if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
                 swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
             elif settings.sections() != [] and settings['Main']['Language'] == 'English':
@@ -323,6 +338,10 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('DOS (866)')
             swiz003.ui.authmethod_combo.addItem('NickServ')
             swiz003.ui.authmethod_combo.addItem('Без аутентификации')
+            try:
+                swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.profname.text())]['encoding'])
+            except:
+                pass
             translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
             swiz003.exec_()
 
@@ -353,20 +372,41 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.ui.del_profile_btn.setStyleSheet('color: #4f4f4f')
         self.parent = parent
         self.channel = None
-
-        try:
-            if profiles.sections() != [] or profiles.sections() != None:
-                self.ui.tableWidget.setRowCount(0);
-                rowPosition = self.ui.tableWidget.rowCount()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.tick)
+        self.timer.start(100)
+        self.sections_count = None
+        if (profiles.sections() != [] or profiles.sections() != None):
+            self.ui.tableWidget.setRowCount(0)
+            sections_list = []
+            for section in profiles.sections():
+                sections_list.append(str(section))
+            self.sections_count = len(sections_list)
+            for section in sections_list:
+                rowPosition = sections_list.index(section)
                 self.ui.tableWidget.insertRow(rowPosition)
-                for section in profiles.sections():
-                    self.ui.tableWidget.setItem(rowPosition, 0, QTableWidgetItem(section))
-                    if profiles[section]['Server'] != '':
-                        self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('{0}:{1}'.format(profiles[section]['Server'], profiles[section]['Port'])))
-                    else:
-                        self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('-'))
-        except:
-            pass
+                self.ui.tableWidget.setItem(rowPosition, 0, QTableWidgetItem(section))
+                if profiles[section]['Server'] != '':
+                    self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('{0}:{1}'.format(profiles[section]['Server'], profiles[section]['Port'])))
+                else:
+                    self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('-'))
+
+    def tick(self):
+        sections_list = []
+        for section in profiles.sections():
+            sections_list.append(str(section))
+        if self.sections_count != len(sections_list):
+            self.ui.tableWidget.setRowCount(0)
+
+            for section in sections_list:
+                rowPosition = sections_list.index(section)
+                self.ui.tableWidget.insertRow(rowPosition)
+                self.ui.tableWidget.setItem(rowPosition, 0, QTableWidgetItem(section))
+                if profiles[section]['Server'] != '':
+                    self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('{0}:{1}'.format(profiles[section]['Server'], profiles[section]['Port'])))
+                else:
+                    self.ui.tableWidget.setItem(rowPosition, 1, QTableWidgetItem('-'))
+            self.sections_count = len(sections_list)
 
     def show_custom_edit_dlg(self):
         swiz002 = SettingsWizard002()
@@ -388,27 +428,58 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
         self.parent.ui.send_msg_btn.clicked.connect(self.send_msg)
         self.parent.ui.message_text.returnPressed.connect(self.send_msg)
+        settings.read('settings')
+        if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+            self.ui.connect_btn.setText(ru_RU.get()['dscn_btn'])
+        elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+            self.ui.connect_btn.setText(en_US.get()['dscn_btn'])
+        self.ui.connect_btn.clicked.disconnect()
+        self.ui.connect_btn.clicked.connect(self.irc_disconnect)
 
 
-    @QtCore.pyqtSlot(str, str, int, str, str, str, socket.socket)
-    def started(self, status, server, port, nickname, encoding, quiting_msg, socket):
+    def irc_disconnect(self):
+        try:
+            profiles.read('profiles')
+            print('Disconnecting...')
+            self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[section]['Server']['quitingmsg']), self.encoding))
+            self.socket.close()
+            self.ui.connect_btn.clicked.connect(self.irc_connect)
+            settings.read('settings')
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                self.ui.connect_btn.setText(ru_RU.get()['conn_btn'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                self.ui.connect_btn.setText(en_US.get()['conn_btn'])
+            self.timer.start()
+        except Exception as e:
+            print(e)
+
+    @QtCore.pyqtSlot(str, str, int, str, str, str, int, socket.socket)
+    def started(self, status, server, port, nickname, encoding, quiting_msg, ping, socket):
         self.socket = socket
         self.encoding = encoding
         self.server = server
         self.port = port
         self.nickname = nickname
         self.quiting_msg = quiting_msg
+        self.ping = ping
         text = '{}'.format(status)
         msg_list = status.splitlines()
-        self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), text))
-        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
         for msg_line in msg_list:
-            if msg_line.startswith('PING :'):
-                self.close()
+            if msg_line.startswith('PING '):
+                self.last_ping = time.time()
+                try:
+                    self.parent.ui.conn_quality_progr.setValue(5000 - ((self.last_ping - self.ping) * 1000))
+                    self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 2)))
+                except:
+                    pass
             elif msg_line.startswith('Exception: '):
                 self.parent.ui.chat_text.setPlainText('{0}'.format(msg_line))
+            else:
+                self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
+                self.parent.ui.chat_text.moveCursor(QTextCursor.End)
 
     def send_msg(self):
+        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
         if self.parent.ui.message_text.text().startswith('/join #'):
             msg_list = self.parent.ui.message_text.text().split(' ')
             self.channel = msg_list[1]
@@ -438,12 +509,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('INFO\r\n', self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith == '/die':
-            msg_list = self.parent.ui.message_text.text().split(' ')
-            nick = msg_list[1]
-            self.socket.send(bytes('ERROR {0}\r\n'.format(self.quiting_msg), self.encoding))
-            self.socket.send(bytes('DIE\r\n', self.encoding))
-            print('Disconnected.')
+        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith == '/quit':
+            settings.read('settings')
+            self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[section]['Server']['quitingmsg']), self.encoding))
             self.socket.close()
         elif self.channel != None:
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
@@ -488,7 +556,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
             swiz003.ui.password_box.setText(self.password)
         except:
-                pass
+            pass
 
         try:
             swiz003.ui.server_box.setText(fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')))
@@ -496,6 +564,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             pass
         try:
             swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['encoding'])
+            self.timer.start()
         except Exception as e:
             print(e)
         translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
@@ -517,6 +586,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             self.ui.change_profile_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
             self.ui.del_profile_btn.setEnabled(False)
             self.ui.del_profile_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
+            self.timer.start()
 
     def click_item(self):
         profiles.read('profiles')
@@ -528,6 +598,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             if profiles[self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()]['server'] != '' and profiles[self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()]['port'] != '':
                 self.ui.connect_btn.setEnabled(True)
                 self.ui.connect_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+            self.timer.stop()
         except:
             pass
 
