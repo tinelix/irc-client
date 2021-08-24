@@ -21,6 +21,8 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
             mainclass.ui.connect_item.setText(ru_RU.get()['conn_mi'])
             mainclass.ui.quit_item.setText(ru_RU.get()['quit_mi'])
             mainclass.ui.about_item.setText(ru_RU.get()['about_mi'])
+            mainclass.ui.send_msg_btn.setText(ru_RU.get()['send_msg'])
+            mainclass.ui.message_text.setText(ru_RU.get()['cantsmsg'])
         except:
             pass
     elif language == 'English':
@@ -30,6 +32,8 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
             mainclass.ui.connect_item.setText(en_US.get()['conn_mi'])
             mainclass.ui.quit_item.setText(en_US.get()['quit_mi'])
             mainclass.ui.about_item.setText(en_US.get()['about_mi'])
+            mainclass.ui.send_msg_btn.setText(en_US.get()['send_msg'])
+            mainclass.ui.message_text.setText(en_US.get()['cantsmsg'])
         except:
             pass
         try:

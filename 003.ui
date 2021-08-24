@@ -44,7 +44,7 @@ color: rgb(255, 255, 255);</string>
       <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="main_tab">
       <attribute name="title">
@@ -56,7 +56,7 @@ color: rgb(255, 255, 255);</string>
          <item row="4" column="1">
           <widget class="QComboBox" name="authmethod_combo">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="minimumSize">
             <size>
@@ -67,11 +67,6 @@ color: rgb(255, 255, 255);</string>
            <property name="styleSheet">
             <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
            </property>
-           <item>
-            <property name="text">
-             <string>(not implemented)</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="0" column="0">
@@ -200,9 +195,9 @@ color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="password_box">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="styleSheet">
             <string notr="true">selection-background-color: rgb(161, 75, 0);
@@ -346,7 +341,7 @@ border-color: rgb(255, 119, 0);</string>
 border-color: rgb(255, 119, 0);</string>
            </property>
            <property name="text">
-            <string>Tinelix IRC server (codename Flight, 0.0.2 Alpha)</string>
+            <string/>
            </property>
           </widget>
          </item>

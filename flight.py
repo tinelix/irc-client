@@ -1,11 +1,14 @@
 #!/usr/bin/python3
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from mainform import Ui_MainWindow
 from dlg001 import Ui_Dialog as swiz_001
 from dlg002 import Ui_Dialog as swiz_002
@@ -15,11 +18,15 @@ from dlg004 import Ui_Dialog as aboutprg
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.0.2 Alpha'
+version = '0.0.3 Alpha'
+date = '2021-08-24'
+
+enckey = Fernet.generate_key()
+fernet = Fernet(enckey)
 
 class Thread(QThread):
-    logged = QtCore.pyqtSignal(str)
-    started = QtCore.pyqtSignal(str)
+    logged = QtCore.pyqtSignal(str, str, int, str, str, str, socket.socket)
+    started = QtCore.pyqtSignal(str, str, int, str, str, str, socket.socket)
 
     def __init__(self, parent):
         super().__init__()
@@ -33,21 +40,29 @@ class Thread(QThread):
                 self.port = int(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Port'])
                 self.channel = ""
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.quiting_msg = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['quitingmsg']
+                fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
+                self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
                 try:
                     self.socket.connect((self.server,self.port))
                     print('Connecting to {0}...'.format(self.server))
-                    self.socket.setblocking(False)
+                    self.socket.setblocking(True)
                     self.socket.send(bytes("USER " + self.username + " " + self.username +" " + self.username + " :Testing\n", self.encoding))
                     self.socket.send(bytes("NICK " + self.username + "\n", self.encoding))
-                    #self.socket.send(bytes("NICKSERV IDENTIFY " + self.username + " " + self.password + "\n", self.encoding))
                     while True:
-                        time.sleep(2)
+                        time.sleep(0.5)
                         self.text=self.socket.recv(2040)
-                        self.started.emit(self.text.decode())
-
+                        self.started.emit(''.join(self.text.decode(self.encoding).split(":")), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.socket)
+                        msg_list = self.text.decode(self.encoding).splitlines()
+                        for msg_line in msg_list:
+                            if msg_line.startswith('PING :'):
+                                ping_msg = msg_line.split(' ')
+                                self.socket.send(bytes('PONG {0}\r\n'.format(ping_msg[1]), self.encoding))
+                                if profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['AuthMethod'] == 'NickServ' and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'] != '':
+                                    self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
                 except Exception as e:
                     print('Exception: {0}'.format(e))
-                    self.started.emit('Exception: {0}'.format(str(e)))
+                    self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.socket)
                     self.socket.close()
 
     def kill(self):
@@ -69,7 +84,9 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.child_4 = AboutProgramDlg()
         settings.read('settings')
         profiles.read('profiles')
-        print('Tinelix codename Flight {0} (alpha) (2021-08-23)\nDone!'.format(version))
+        print('Tinelix codename Flight {0} ({1})\nDone!'.format(version, date))
+        self.ui.dialogs_list.setVisible(False)
+        self.ui.members_list.setVisible(False)
 
         if settings.sections() == []:
             settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled'}
@@ -177,10 +194,22 @@ class SettingsWizard003(QtWidgets.QDialog):
         try:
             profiles.read('profiles')
             nicknames_list = []
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=os.urandom(16),
+                iterations=100000
+            )
+            encrypt_code = base64.urlsafe_b64encode(kdf.derive(bytes(self.ui.password_box.text(), 'UTF-8')))
+            fernet = Fernet(encrypt_code)
+            enc_password = fernet.encrypt(bytes(self.ui.password_box.text(), 'UTF-8'))
             for index in range(self.ui.nicknames_combo.count()):
                 if index < (self.ui.nicknames_combo.count() - 1):
                     nicknames_list.append(self.ui.nicknames_combo.itemText(self.ui.nicknames_combo.count()))
-            profiles[str(self.ui.profname_box.text())] = {'AuthMethod': '', 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Encoding': self.ui.encoding_combo.currentText(), 'QuitingMsg': self.ui.quiting_msg_box.text()}
+            if self.ui.encoding_combo.currentText() == 'DOS (866)':
+                profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': 'cp866', 'QuitingMsg': self.ui.quiting_msg_box.text()}
+            else:
+                profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': self.ui.encoding_combo.currentText(), 'QuitingMsg': self.ui.quiting_msg_box.text()}
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
@@ -248,6 +277,16 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
             try:
+                swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'])
+            except:
+                swiz003.ui.quiting_msg_box.setText('Tinelix IRC Client (codename Flight, {0}, {1})'.format(version, date))
+            try:
+                fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
+                self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
+                swiz003.ui.password_box.setText(self.password)
+            except:
+                pass
+            try:
                 swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.lineEdit.text())]['encoding'])
             except Exception as e:
                 print(e)
@@ -268,6 +307,9 @@ class SettingsWizard002(QtWidgets.QDialog):
                 for nick in list(profiles[str(self.ui.profname.text())]['Nicknames'].split(", ")):
                     if nick != "" and nick != " ":
                         swiz003.ui.nicknames_combo.addItem(nick)
+                    swiz003.ui.server_box.setText(profiles[str(self.ui.lineEdit.text())]['Server'])
+                    swiz003.ui.port_box.setValue(int(profiles[str(self.ui.lineEdit.text())]['Port']))
+                    swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.lineEdit.text())]['quitingmsg'])
             except Exception as e:
                 print(e)
             swiz003.ui.title_label.setText(str(self.ui.profname.text()))
@@ -279,6 +321,8 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
+            swiz003.ui.authmethod_combo.addItem('NickServ')
+            swiz003.ui.authmethod_combo.addItem('Без аутентификации')
             translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
             swiz003.exec_()
 
@@ -308,6 +352,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.ui.del_profile_btn.setEnabled(False)
         self.ui.del_profile_btn.setStyleSheet('color: #4f4f4f')
         self.parent = parent
+        self.channel = None
 
         try:
             if profiles.sections() != [] or profiles.sections() != None:
@@ -336,13 +381,74 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.thread = Thread(self)
         self.thread.started.connect(self.started)
         self.thread.start()
+        self.parent.ui.message_text.setText('')
+        self.parent.ui.message_text.setEnabled(True)
+        self.parent.ui.message_text.setStyleSheet('selection-background-color: rgb(161, 75, 0); color: #ffffff')
+        self.parent.ui.send_msg_btn.setEnabled(True)
+        self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+        self.parent.ui.send_msg_btn.clicked.connect(self.send_msg)
+        self.parent.ui.message_text.returnPressed.connect(self.send_msg)
 
 
-    @QtCore.pyqtSlot(str)
-    def started(self, status):
+    @QtCore.pyqtSlot(str, str, int, str, str, str, socket.socket)
+    def started(self, status, server, port, nickname, encoding, quiting_msg, socket):
+        self.socket = socket
+        self.encoding = encoding
+        self.server = server
+        self.port = port
+        self.nickname = nickname
+        self.quiting_msg = quiting_msg
         text = '{}'.format(status)
+        msg_list = status.splitlines()
         self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), text))
+        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+        for msg_line in msg_list:
+            if msg_line.startswith('PING :'):
+                self.close()
+            elif msg_line.startswith('Exception: '):
+                self.parent.ui.chat_text.setPlainText('{0}'.format(msg_line))
 
+    def send_msg(self):
+        if self.parent.ui.message_text.text().startswith('/join #'):
+            msg_list = self.parent.ui.message_text.text().split(' ')
+            self.channel = msg_list[1]
+            try:
+                self.socket.send(bytes('JOIN {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                pass
+        elif self.parent.ui.message_text.text().startswith('/whois '):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                nick = msg_list[1]
+                self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                pass
+        elif self.parent.ui.message_text.text().startswith('/leave') or self.parent.ui.message_text.text().startswith('/part'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                self.socket.send(bytes('PART {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                pass
+        elif self.parent.ui.message_text.text().startswith('/nickserv identify') or self.parent.ui.message_text.text().startswith('/msg nickserv identify'):
+            msg_list = self.parent.ui.message_text.text().split(' ')
+            password = msg_list[len(msg_list) - 1]
+            self.socket.send(bytes('PRIVMSG nickserv identify {0} {1}\r\n'.format(self.nickname, password), self.encoding))
+        elif self.parent.ui.message_text.text() == '/info':
+            try:
+                self.socket.send(bytes('INFO\r\n', self.encoding))
+            except:
+                pass
+        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith == '/die':
+            msg_list = self.parent.ui.message_text.text().split(' ')
+            nick = msg_list[1]
+            self.socket.send(bytes('ERROR {0}\r\n'.format(self.quiting_msg), self.encoding))
+            self.socket.send(bytes('DIE\r\n', self.encoding))
+            print('Disconnected.')
+            self.socket.close()
+        elif self.channel != None:
+            self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
+        self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text()))
+        self.parent.ui.message_text.setText('')
 
     def edit_item(self):
         swiz003 = SettingsWizard003()
@@ -357,7 +463,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         swiz003.ui.nicknames_combo.addItem(nick)
                 swiz003.ui.server_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Server'])
                 swiz003.ui.port_box.setValue(int(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['Port']))
-                swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'])
+                if profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'] == '' and profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'] == None:
+                    swiz003.ui.quiting_msg_box.setText('Tinelix IRC Client (codename Flight, {0}, {1})'.format(version, date))
+                else:
+                    swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'])
             else:
                 swiz003.ui.nicknames_combo.addItem('')
                 swiz003.ui.clear_nicknames_btn.setEnabled(False)
@@ -372,6 +481,19 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         swiz003.ui.encoding_combo.addItem('UTF-8')
         swiz003.ui.encoding_combo.addItem('Windows-1251')
         swiz003.ui.encoding_combo.addItem('DOS (866)')
+        swiz003.ui.authmethod_combo.addItem('NickServ')
+        swiz003.ui.authmethod_combo.addItem('Без аутентификации')
+        try:
+            fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
+            self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
+            swiz003.ui.password_box.setText(self.password)
+        except:
+                pass
+
+        try:
+            swiz003.ui.server_box.setText(fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')))
+        except:
+            pass
         try:
             swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['encoding'])
         except Exception as e:

@@ -59,11 +59,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setSpacing(4)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.message_text = QtWidgets.QLineEdit(self.centralwidget)
-        self.message_text.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
+        self.message_text.setEnabled(False)
+        self.message_text.setStyleSheet("selection-background-color: rgb(161, 75, 0);\n"
+"color: rgb(79, 79, 79);")
         self.message_text.setObjectName("message_text")
         self.horizontalLayout_2.addWidget(self.message_text)
         self.send_msg_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.send_msg_btn.setStyleSheet("selection-background-color: rgb(255, 119, 0);")
+        self.send_msg_btn.setEnabled(False)
+        self.send_msg_btn.setStyleSheet("border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f")
         self.send_msg_btn.setObjectName("send_msg_btn")
         self.horizontalLayout_2.addWidget(self.send_msg_btn)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
@@ -137,6 +140,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Tinelix IRC Client"))
+        self.message_text.setText(_translate("MainWindow", "На данный момент написать сообщение нельзя"))
         self.send_msg_btn.setText(_translate("MainWindow", "Отправить"))
         self.conn_quality_label.setText(_translate("MainWindow", "Качество соединения:"))
         self.conn_quality_progr.setFormat(_translate("MainWindow", "%p%"))
