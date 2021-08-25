@@ -501,7 +501,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'PRIVMSG':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:])))
+                        self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:].splitlines()[0])))
                         self.parent.ui.chat_text.moveCursor(QTextCursor.End)
                 except:
                     self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
