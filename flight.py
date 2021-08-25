@@ -495,6 +495,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     self.names_raw = msg_line.split(' ')[5:]
                     for nick in self.names_raw:
                         self.names.append(nick.replace(':', '').replace('~', '').replace('@', '').replace('&', ''))
+                except Exception as e:
+                    pass
+            elif msg_line.startswith('{0} {1}'.format(self.server, 366)):
+                try:
+                    self.parent.ui.members_list.clear()
+                    self.parent.ui.members_list.addItems(self.names)
+                    self.parent.ui.members_list.setVisible(True)
                 except:
                     pass
             elif msg_line.find('PRIVMSG') != -1:
