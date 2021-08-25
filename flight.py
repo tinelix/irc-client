@@ -510,7 +510,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'JOIN':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1} joined on the channel {2}.'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:])))
+                        self.parent.ui.chat_text.setPlainText('{0}\n{1} joined on the channel {2}.'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0]))
                         self.parent.ui.chat_text.moveCursor(QTextCursor.End)
                         self.parent.ui.status_label.setText(ru_RU.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
                 except:
