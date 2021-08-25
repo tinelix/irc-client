@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>384</width>
-    <height>298</height>
+    <height>274</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -131,6 +131,12 @@ selection-background-color: rgb(161, 75, 0);</string>
      </property>
      <item>
       <widget class="QPushButton" name="add_profile_btn">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">border-color: rgb(255, 119, 0);
 selection-background-color: rgb(255, 119, 0);</string>
@@ -142,6 +148,18 @@ selection-background-color: rgb(255, 119, 0);</string>
      </item>
      <item>
       <widget class="QPushButton" name="connect_btn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>106</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">border-color: rgb(255, 119, 0);
 selection-background-color: rgb(255, 119, 0);</string>
@@ -153,6 +171,12 @@ selection-background-color: rgb(255, 119, 0);</string>
      </item>
      <item>
       <widget class="QPushButton" name="change_profile_btn">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">border-color: rgb(255, 119, 0);
 selection-background-color: rgb(255, 119, 0);</string>
@@ -164,6 +188,12 @@ selection-background-color: rgb(255, 119, 0);</string>
      </item>
      <item>
       <widget class="QPushButton" name="del_profile_btn">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">border-color: rgb(255, 119, 0);
 selection-background-color: rgb(255, 119, 0);</string>

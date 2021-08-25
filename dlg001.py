@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(384, 298)
+        Dialog.resize(384, 274)
         Dialog.setMinimumSize(QtCore.QSize(384, 255))
         Dialog.setMaximumSize(QtCore.QSize(384, 600))
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
@@ -61,21 +61,30 @@ class Ui_Dialog(object):
         self.horizontalLayout.setSpacing(2)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.add_profile_btn = QtWidgets.QPushButton(Dialog)
+        self.add_profile_btn.setMinimumSize(QtCore.QSize(0, 0))
         self.add_profile_btn.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")
         self.add_profile_btn.setObjectName("add_profile_btn")
         self.horizontalLayout.addWidget(self.add_profile_btn)
         self.connect_btn = QtWidgets.QPushButton(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.connect_btn.sizePolicy().hasHeightForWidth())
+        self.connect_btn.setSizePolicy(sizePolicy)
+        self.connect_btn.setMinimumSize(QtCore.QSize(106, 0))
         self.connect_btn.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")
         self.connect_btn.setObjectName("connect_btn")
         self.horizontalLayout.addWidget(self.connect_btn)
         self.change_profile_btn = QtWidgets.QPushButton(Dialog)
+        self.change_profile_btn.setMinimumSize(QtCore.QSize(0, 0))
         self.change_profile_btn.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")
         self.change_profile_btn.setObjectName("change_profile_btn")
         self.horizontalLayout.addWidget(self.change_profile_btn)
         self.del_profile_btn = QtWidgets.QPushButton(Dialog)
+        self.del_profile_btn.setMinimumSize(QtCore.QSize(0, 0))
         self.del_profile_btn.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")
         self.del_profile_btn.setObjectName("del_profile_btn")

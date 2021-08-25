@@ -35,6 +35,8 @@ def get():
         'quit_mi': 'Quit',
         'about_mi': 'About...',
         'send_msg': 'Send',
+        'chstatus': 'You are on the channel {0}.',
+        'rdstatus': 'Ready.',
         'connqual': 'Connection quality:',
         'cantsmsg': 'You cannot send message at the moment',
         'about_tt': 'About Tinelix IRC Client',

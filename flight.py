@@ -18,8 +18,8 @@ from dlg004 import Ui_Dialog as aboutprg
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.1.1 Beta'
-date = '2021-08-24'
+version = '0.1.2 Beta'
+date = '2021-08-25'
 
 enckey = Fernet.generate_key()
 fernet = Fernet(enckey)
@@ -31,8 +31,8 @@ def search(list, platform):
     return False
 
 class Thread(QThread):
-    logged = QtCore.pyqtSignal(str, str, int, str, str, str, int, socket.socket)
-    started = QtCore.pyqtSignal(str, str, int, str, str, str, int, socket.socket)
+    logged = QtCore.pyqtSignal(str, str, float, str, str, str, float, socket.socket)
+    started = QtCore.pyqtSignal(str, str, float, str, str, str, float, socket.socket)
 
     def __init__(self, parent=None):
         super(Thread, self).__init__(parent)
@@ -68,6 +68,7 @@ class Thread(QThread):
                             if msg_line.startswith('PING :'):
                                 ping_msg = msg_line.split(' ')
                                 self.socket.send(bytes('PONG {0}\r\n'.format(ping_msg[1]), self.encoding))
+
                     if profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['AuthMethod'] == 'NickServ' and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'] != '':
                         self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
                 except Exception as e:
@@ -218,6 +219,10 @@ class SettingsWizard003(QtWidgets.QDialog):
                     nicknames_list.append(self.ui.nicknames_combo.itemText(self.ui.nicknames_combo.count()))
             if self.ui.encoding_combo.currentText() == 'DOS (866)':
                 profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': 'cp866', 'QuitingMsg': self.ui.quiting_msg_box.text()}
+            elif self.ui.encoding_combo.currentText() == 'KOI8-R':
+                profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': 'koi8_r', 'QuitingMsg': self.ui.quiting_msg_box.text()}
+            elif self.ui.encoding_combo.currentText() == 'KOI8-U':
+                profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': 'koi8_u', 'QuitingMsg': self.ui.quiting_msg_box.text()}
             else:
                 profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': self.ui.encoding_combo.currentText(), 'QuitingMsg': self.ui.quiting_msg_box.text()}
             with open('profiles', 'w') as configfile:
@@ -285,6 +290,8 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
+            swiz003.ui.encoding_combo.addItem('KOI8-R')
+            swiz003.ui.encoding_combo.addItem('KOI8-U')
             swiz003.ui.authmethod_combo.addItem('NickServ')
             if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
                 swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
@@ -336,6 +343,8 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
+            swiz003.ui.encoding_combo.addItem('KOI8-R')
+            swiz003.ui.encoding_combo.addItem('KOI8-U')
             swiz003.ui.authmethod_combo.addItem('NickServ')
             swiz003.ui.authmethod_combo.addItem('Без аутентификации')
             try:
@@ -451,10 +460,12 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             elif settings.sections() != [] and settings['Main']['Language'] == 'English':
                 self.ui.connect_btn.setText(en_US.get()['conn_btn'])
             self.timer.start()
+            self.parent.ui.members_list.clear()
+            self.parent.ui.members_list.setVisible(False)
         except Exception as e:
             print(e)
 
-    @QtCore.pyqtSlot(str, str, int, str, str, str, int, socket.socket)
+    @QtCore.pyqtSlot(str, str, float, str, str, str, float, socket.socket)
     def started(self, status, server, port, nickname, encoding, quiting_msg, ping, socket):
         self.socket = socket
         self.encoding = encoding
@@ -463,16 +474,48 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.nickname = nickname
         self.quiting_msg = quiting_msg
         self.ping = ping
+        self.names = []
+        self.parent.setWindowTitle('Tinelix IRC Client | {0}'.format(self.server))
         text = '{}'.format(status)
         msg_list = status.splitlines()
         for msg_line in msg_list:
             if msg_line.startswith('PING '):
                 self.last_ping = time.time()
                 try:
-                    self.parent.ui.conn_quality_progr.setValue(5000 - ((self.last_ping - self.ping) * 1000))
-                    self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 2)))
+                    self.parent.ui.conn_quality_progr.setValue(round(5000 - ((self.last_ping - self.ping) * 1000)))
+                    if round((self.last_ping - self.ping) * 1000, 2) < 1000:
+                        self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 2)))
+                    else:
+                        self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 1)))
+                    self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
                 except:
                     pass
+            elif msg_line.startswith('{0} {1}'.format(self.server, 353)):
+                try:
+                    self.names_raw = msg_line.split(' ')[5:]
+                    for nick in self.names_raw:
+                        self.names.append(nick.replace(':', '').replace('~', '').replace('@', '').replace('&', ''))
+                except:
+                    pass
+            elif msg_line.find('PRIVMSG') != -1:
+                try:
+                    decoded_text = status.replace('!', ' ').split(' ')
+                    if decoded_text[2] == 'PRIVMSG':
+                        self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:])))
+                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                except:
+                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
+                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.find('JOIN') != -1:
+                try:
+                    decoded_text = status.replace('!', ' ').split(' ')
+                    if decoded_text[2] == 'JOIN':
+                        self.parent.ui.chat_text.setPlainText('{0}\n{1} joined on the channel {2}.'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:])))
+                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        self.parent.ui.status_label.setText(ru_RU.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
+                except:
+                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
+                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.startswith('Exception: '):
                 self.parent.ui.chat_text.setPlainText('{0}'.format(msg_line))
             else:
@@ -494,12 +537,21 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text().startswith('/leave') or self.parent.ui.message_text.text().startswith('/part'):
+        elif self.parent.ui.message_text.text() == ('/leave') or self.parent.ui.message_text.text() == ('/part'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
-                self.socket.send(bytes('PART {0}\r\n'.format(msg_list[1]), self.encoding))
+                self.socket.send(bytes('PART {0}\r\n'.format(self.channel), self.encoding))
+                self.parent.ui.members_list.clear()
+                self.parent.ui.members_list.setVisible(False)
+                self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
             except:
                 pass
+        elif self.parent.ui.message_text.text().startswith('/names') or self.parent.ui.message_text.text().startswith('/members'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                self.socket.send(bytes('NAMES {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                self.socket.send(bytes('NAMES\r\n', self.encoding))
         elif self.parent.ui.message_text.text().startswith('/nickserv identify') or self.parent.ui.message_text.text().startswith('/msg nickserv identify'):
             msg_list = self.parent.ui.message_text.text().split(' ')
             password = msg_list[len(msg_list) - 1]
@@ -518,6 +570,8 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.ui.connect_btn.setText(ru_RU.get()['conn_btn'])
             elif settings.sections() != [] and settings['Main']['Language'] == 'English':
                 self.ui.connect_btn.setText(en_US.get()['conn_btn'])
+            self.parent.ui.members_list.clear()
+            self.parent.ui.members_list.setVisible(False)
         elif self.channel != None:
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
         self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2}'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text()))
@@ -555,6 +609,8 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         swiz003.ui.encoding_combo.addItem('UTF-8')
         swiz003.ui.encoding_combo.addItem('Windows-1251')
         swiz003.ui.encoding_combo.addItem('DOS (866)')
+        swiz003.ui.encoding_combo.addItem('KOI8-R')
+        swiz003.ui.encoding_combo.addItem('KOI8-U')
         swiz003.ui.authmethod_combo.addItem('NickServ')
         swiz003.ui.authmethod_combo.addItem('Без аутентификации')
         try:
