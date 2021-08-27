@@ -65,7 +65,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.msgs_hint = QtWidgets.QCheckBox(Dialog)
-        self.msgs_hint.setEnabled(False)
+        self.msgs_hint.setEnabled(True)
         self.msgs_hint.setMinimumSize(QtCore.QSize(0, 21))
         self.msgs_hint.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")

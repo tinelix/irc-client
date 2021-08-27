@@ -863,14 +863,17 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             else:
                 self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
                 self.parent.ui.chat_text.moveCursor(QTextCursor.End)
-            if not msg_line.startswith('Exception: ') and settings.sections() != [] and settings['Main']['MsgHistory'] == 'Enabled':
-                if not os.path.exists('history'):
-                    os.makedirs('history')
-                    with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+            try:
+                if not msg_line.startswith('Exception: ') and settings.sections() != [] and settings['Main']['MsgHistory'] == 'Enabled':
+                    if not os.path.exists('history'):
+                        os.makedirs('history')
+                        with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
                         f.write(self.parent.ui.chat_text.toPlainText())
-                else:
-                    with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                        f.write(self.parent.ui.chat_text.toPlainText())
+                    else:
+                        with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+                            f.write(self.parent.ui.chat_text.toPlainText())
+                except:
+                    pass
 
     def send_msg(self):
         if self.parent.ui.message_text.text().startswith('/join #'):
