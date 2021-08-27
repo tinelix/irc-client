@@ -747,7 +747,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         for msg_line in msg_list:
             if msg_line.startswith('PING'):
                 self.ping = time.time()
-            if msg_line.startswith('PONG'):
+            elif msg_line.startswith('PONG'):
                 self.last_ping = time.time()
                 try:
                     if round((self.last_ping - self.ping) * 1000, 2) > 0.9:
