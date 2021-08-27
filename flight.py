@@ -20,8 +20,9 @@ from dlg005 import Ui_Dialog as ext_sett
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.2.1 Beta'
+version = '0.2.2 Beta'
 date = '2021-08-27'
+
 now = datetime.datetime.now()
 
 enckey = Fernet.generate_key()
@@ -72,9 +73,10 @@ class Thread(QThread):
                                 ping_msg = msg_line.split(' ')
                                 self.socket.send(bytes('PONG {0}\r\n'.format(ping_msg[1]), self.encoding))
                                 self.started.emit('PONG', self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
+                            elif msg_line.startswith(':{0} {1}'.format(self.server, '001')):
+                                self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
 
-                    if profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['AuthMethod'] == 'NickServ' and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'] != '':
-                        self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
+
                 except Exception as e:
                     print('Exception: {0}'.format(e))
                     self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
@@ -610,6 +612,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
 
     def irc_connect(self):
         self.thread = Thread(self)
+        ping_count = 0
         self.thread.started.connect(self.started)
         self.thread.start()
         self.now = datetime.datetime.now()
@@ -756,6 +759,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                        self.parent.ui.latency_label.setText('')
                 except:
                     pass
+            elif msg_line.startswith('{0} PONG'.format(self.server)):
+                decoded_text = status.split(' ')
+                self.parent.ui.chat_text.setPlainText('{0}\n{1}: Pong! ({2})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[3].splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
             elif msg_line.startswith('{0} {1}'.format(self.server, 353)):
                 try:
                     self.names_raw = msg_line.split(' ')[5:]
@@ -797,6 +803,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.ui.members_list.setVisible(True)
             elif msg_line.startswith('{0} {1}'.format(self.server, 372)):
                 self.parent.ui.chat_text.setPlainText('{0}\nServer Message: {1}'.format(self.parent.ui.chat_text.toPlainText(), " ".join(msg_line.split(' ')[3:])))
+            elif msg_line.startswith('{0} {1}'.format(self.server, 321)):
+                pass
+            elif msg_line.startswith('{0} {1}'.format(self.server, 322)):
+                try:
+                    self.parent.ui.chat_text.setPlainText('{0}\nChannel: {1}\nTopic: {2}\nMembers: {3}\n------------------'.format(self.parent.ui.chat_text.toPlainText(), msg_line.split(' ')[3], " ".join(msg_line.split(' ')[5:]), msg_line.split(' ')[4]))
+                except:
+                    pass
             elif msg_line.find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
@@ -835,6 +848,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print(e)
                     self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
                     self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+
             elif msg_line.find('QUIT') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
@@ -880,7 +894,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 pass
 
     def send_msg(self):
-        if self.parent.ui.message_text.text().startswith('/join #'):
+        if self.parent.ui.message_text.text().startswith('/join '):
             msg_list = self.parent.ui.message_text.text().split(' ')
             self.channel = msg_list[1]
             try:
@@ -895,13 +909,12 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('WHOIS\r\n', self.encoding))
-        elif self.parent.ui.message_text.text().startswith('/nick'):
+        elif self.parent.ui.message_text.text().startswith('/list'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
-                nick = msg_list[1]
-                self.socket.send(bytes('NICK {0}\r\n'.format(msg_list[1]), self.encoding))
+                self.socket.send(bytes('LIST\r\n', self.encoding))
             except:
-                self.socket.send(bytes('NICK\r\n', self.encoding))
+                pass
         elif self.parent.ui.message_text.text() == ('/leave') or self.parent.ui.message_text.text() == ('/part'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
@@ -926,6 +939,12 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('INFO\r\n', self.encoding))
             except:
                 pass
+        elif self.parent.ui.message_text.text().startswith('/ping'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                self.socket.send(bytes('PING {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                pass
         elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith('/quit'):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
@@ -945,10 +964,23 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             self.parent.ui.conn_quality_progr.setValue(0)
             self.parent.ui.latency_label.setText('')
             self.parent.ui.message_text.setEnabled(False)
+        elif self.parent.ui.message_text.text().startswith('/'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                self.socket.send(bytes('{0}\r\n'.format(''.join(self.parent.ui.message_text.text()[1:])), self.encoding))
+            except Exception as e:
+                print(e)
         elif self.channel != None:
             self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
         if self.parent.ui.message_text.text().startswith('/nickserv identify'):
             self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} [password] ({3})'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, ' '.join(self.parent.ui.message_text.text().split(' ')[:2]), datetime.datetime.now().strftime("%H:%M:%S")))
+        elif self.parent.ui.message_text.text().startswith('/nick'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                nick = msg_list[1]
+                self.socket.send(bytes('NICK {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                self.socket.send(bytes('NICK\r\n', self.encoding))
         else:
             self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text(), datetime.datetime.now().strftime("%H:%M:%S")))
         self.parent.ui.message_text.setText('')
