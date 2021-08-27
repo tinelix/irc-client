@@ -18,7 +18,9 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
         try:
             mainclass.ui.menu.setTitle(ru_RU.get()['filemenu'])
             mainclass.ui.menu_2.setTitle(ru_RU.get()['helpmenu'])
+            mainclass.ui.menu_3.setTitle(ru_RU.get()['viewmenu'])
             mainclass.ui.connect_item.setText(ru_RU.get()['conn_mi'])
+            mainclass.ui.settings_item.setText(ru_RU.get()['setsitem'])
             mainclass.ui.quit_item.setText(ru_RU.get()['quit_mi'])
             mainclass.ui.about_item.setText(ru_RU.get()['about_mi'])
             mainclass.ui.send_msg_btn.setText(ru_RU.get()['send_msg'])
@@ -30,7 +32,9 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
         try:
             mainclass.ui.menu.setTitle(en_US.get()['filemenu'])
             mainclass.ui.menu_2.setTitle(en_US.get()['helpmenu'])
+            mainclass.ui.menu_3.setTitle(en_US.get()['viewmenu'])
             mainclass.ui.connect_item.setText(en_US.get()['conn_mi'])
+            mainclass.ui.settings_item.setText(en_US.get()['setsitem'])
             mainclass.ui.quit_item.setText(en_US.get()['quit_mi'])
             mainclass.ui.about_item.setText(en_US.get()['about_mi'])
             mainclass.ui.send_msg_btn.setText(en_US.get()['send_msg'])
@@ -99,6 +103,26 @@ def translate_004(mainclass, form, language, en_US, ru_RU):
             form.description_label.setText(en_US.get()['free_sft'].format(QT_VERSION_STR, PYQT_VERSION_STR))
             form.label.setText(en_US.get()['gpl_info'])
             form.repo_btn.setText(en_US.get()['repo_btn'])
+        except Exception as e:
+            print(e)
+
+def translate_005(mainclass, form, language, en_US, ru_RU):
+    if language == 'Russian':
+        try:
+            mainclass.child_5.setWindowTitle(ru_RU.get()['setsitem'])
+            form.title_label.setText((ru_RU.get()['setsitem']))
+            form.dark_theme_cb.setText(ru_RU.get()['darkthcb'])
+            form.save_msghistory_cb.setText(ru_RU.get()['msghstcb'])
+            form.msgs_hint.setText(ru_RU.get()['msgshtcb'])
+        except Exception as e:
+            print(e)
+    elif language == 'English':
+        try:
+            mainclass.child_5.setWindowTitle(en_US.get()['setsitem'])
+            form.title_label.setText((en_US.get()['setsitem']))
+            form.dark_theme_cb.setText(en_US.get()['darkthcb'])
+            form.save_msghistory_cb.setText(en_US.get()['msghstcb'])
+            form.msgs_hint.setText(en_US.get()['msgshtcb'])
         except Exception as e:
             print(e)
 

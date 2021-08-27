@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
-    <height>362</height>
+    <width>408</width>
+    <height>382</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>408</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>624</width>
+    <height>404</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>О клиенте Tinelix IRC</string>
@@ -35,10 +47,16 @@ color: rgb(255, 255, 255);</string>
      </item>
      <item>
       <widget class="QLabel" name="progname">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>40</height>
+         <height>28</height>
         </size>
        </property>
        <property name="font">
@@ -71,7 +89,7 @@ color: rgb(255, 255, 255);</string>
         <string>(description)</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignHCenter|Qt::AlignTop</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -79,7 +97,26 @@ color: rgb(255, 255, 255);</string>
       </widget>
      </item>
      <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>110</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>110</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">selection-color: rgb(255, 119, 0);</string>
        </property>
@@ -87,7 +124,7 @@ color: rgb(255, 255, 255);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Это свободное программное обеспечение с открытым исходным кодом, распространяемое в соответствии с условиями &lt;a href=&quot;https://www.gnu.org/licenses/gnu-3.0.ru.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1d99f3;&quot;&gt;GNU General Public License 3.0 (прочитать лицензию)&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;.&lt;br&gt;&lt;br&gt;БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ВКЛЮЧАЯ КОММЕРЧЕСКУЮ ЦЕННОСТЬ.&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignHCenter|Qt::AlignTop</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -97,9 +134,24 @@ color: rgb(255, 255, 255);</string>
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>© 2021 Dmitry Tretyakov (aka. Tinelix)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="repo_btn">
+       <property name="styleSheet">
+        <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
+       </property>
        <property name="text">
         <string>Репозиторий</string>
        </property>
@@ -107,8 +159,11 @@ color: rgb(255, 255, 255);</string>
      </item>
      <item row="0" column="1">
       <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="styleSheet">
+        <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
+       </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>
@@ -117,5 +172,22 @@ color: rgb(255, 255, 255);</string>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>254</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>190</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>300</height>
+    <width>595</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,6 +18,10 @@
   </property>
   <property name="windowTitle">
    <string>Tinelix IRC Client</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icon_48x48.png</normaloff>icon_48x48.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(43, 43, 43);
@@ -84,16 +88,16 @@ color: rgb(255, 255, 255);</string>
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="members_list">
+       <widget class="QTreeWidget" name="members_list">
         <property name="minimumSize">
          <size>
-          <width>128</width>
+          <width>144</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>112</width>
+          <width>144</width>
           <height>16777215</height>
          </size>
         </property>
@@ -103,9 +107,32 @@ color: rgb(255, 255, 255);</string>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
-        <property name="autoScroll">
+        <property name="editTriggers">
+         <set>QAbstractItemView::SelectedClicked</set>
+        </property>
+        <property name="indentation">
+         <number>10</number>
+        </property>
+        <property name="rootIsDecorated">
+         <bool>false</bool>
+        </property>
+        <property name="animated">
+         <bool>false</bool>
+        </property>
+        <property name="wordWrap">
          <bool>true</bool>
         </property>
+        <property name="expandsOnDoubleClick">
+         <bool>true</bool>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>Members</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -176,7 +203,7 @@ color: rgb(79, 79, 79);</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>288</width>
+            <width>220</width>
             <height>16777215</height>
            </size>
           </property>
@@ -208,6 +235,37 @@ color: rgb(79, 79, 79);</string>
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="channel_name">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(74, 74, 74)</string>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="conn_quality_label">
@@ -296,7 +354,7 @@ color: rgb(79, 79, 79);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>544</width>
+     <width>595</width>
      <height>29</height>
     </rect>
    </property>
@@ -308,18 +366,26 @@ color: rgb(79, 79, 79);</string>
      <string>Файл</string>
     </property>
     <addaction name="connect_item"/>
+    <addaction name="separator"/>
     <addaction name="quit_item"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="styleSheet">
-     <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
+     <string notr="true"/>
     </property>
     <property name="title">
      <string>Справка</string>
     </property>
     <addaction name="about_item"/>
    </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+    <addaction name="settings_item"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_3"/>
    <addaction name="menu_2"/>
   </widget>
   <action name="about_item">
@@ -342,7 +408,30 @@ color: rgb(79, 79, 79);</string>
     <string>Выход</string>
    </property>
   </action>
+  <action name="history_cb_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Сохранить историю переписок</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
+  <action name="settings_item">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

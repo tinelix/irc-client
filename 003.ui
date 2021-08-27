@@ -108,7 +108,11 @@ color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="profname_box"/>
+          <widget class="QLineEdit" name="profname_box">
+           <property name="styleSheet">
+            <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -141,10 +145,22 @@ color: rgb(255, 255, 255);</string>
          </item>
          <item row="0" column="1">
           <widget class="QComboBox" name="nicknames_combo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>80</width>
              <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>98</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -156,8 +172,14 @@ color: rgb(255, 255, 255);</string>
           <widget class="QPushButton" name="clear_nicknames_btn">
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>22</height>
+             <width>98</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>98</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
