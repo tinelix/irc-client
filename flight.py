@@ -895,6 +895,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('WHOIS\r\n', self.encoding))
+        elif self.parent.ui.message_text.text().startswith('/nick'):
+            try:
+                msg_list = self.parent.ui.message_text.text().split(' ')
+                nick = msg_list[1]
+                self.socket.send(bytes('NICK {0}\r\n'.format(msg_list[1]), self.encoding))
+            except:
+                self.socket.send(bytes('NICK\r\n', self.encoding))
         elif self.parent.ui.message_text.text() == ('/leave') or self.parent.ui.message_text.text() == ('/part'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
