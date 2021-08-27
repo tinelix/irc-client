@@ -136,7 +136,7 @@ selection-background-color: rgb(255, 119, 0);</string>
      <item>
       <widget class="QCheckBox" name="msgs_hint">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="minimumSize">
         <size>

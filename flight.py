@@ -20,7 +20,7 @@ from dlg005 import Ui_Dialog as ext_sett
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.2.0 Beta'
+version = '0.2.1 Beta'
 date = '2021-08-27'
 now = datetime.datetime.now()
 
@@ -106,7 +106,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.members_list.setVisible(False)
 
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'True', 'MsgHistory': 'True', 'MessagesHint': 'False'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
         else:
@@ -146,6 +146,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             self.child.ui.language_combo.setCurrentText(settings['Main']['Language'])
         except Exception as e:
             print(e)
+        try:
+            self.child_5.ui.language_combo.setCurrentText(settings['Main']['Language'])
+        except Exception as e:
+            print(e)
         self.child.ui.language_combo.currentIndexChanged.connect(self.change_language)
 
     def change_language(self):
@@ -165,27 +169,12 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             settings.read('settings')
         except Exception as e:
             print('Exception: {0}'.format(e))
-        index_5 = self.child_5.ui.language_combo.currentIndex()
-        try:
-            if index_5 == 0:
-                settings['Main']['Language'] = 'Russian'
-                with open('settings', 'w') as configfile:
-                    settings.write(configfile)
-                translator.translate_005(self, self.child_5.ui, 'Russian', en_US, ru_RU)
-            else:
-                settings['Main']['Language'] = 'English'
-                with open('settings', 'w') as configfile:
-                    settings.write(configfile)
-                translator.translate_005(self, self.child_5.ui, 'English', en_US, ru_RU)
-            settings.read('settings')
-        except Exception as e:
-            print('Exception: {0}'.format(e))
 
     def about_window(self):
         settings.read('settings')
         self.version = version
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'False'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'Disabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
             translator.translate_004(self, self.child_4.ui, 'Russian', en_US, ru_RU)
@@ -200,14 +189,18 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def settings_window(self):
         settings.read('settings')
+        self.child_5.ui.language_combo.clear()
+        self.child_5.ui.language_combo.addItem('Russian')
+        self.child_5.ui.language_combo.addItem('English')
         self.version = version
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'False'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'Disabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
-            translator.translate_005(self, self.child_5.ui, 'Russian', en_US, ru_RU)
+            settings.read('settings')
         else:
             translator.translate_005(self, self.child_5.ui, settings['Main']['Language'], en_US, ru_RU)
+            settings.read('settings')
             if settings['Main']['DarkTheme'] == 'Disabled':
                 self.child_5.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
                 self.child_5.ui.dark_theme_cb.setCheckState(0)
@@ -218,21 +211,19 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.child_5.ui.save_msghistory_cb.setCheckState(0)
             else:
                 self.child_5.ui.save_msghistory_cb.setCheckState(2)
-        self.child_5.ui.language_combo.clear()
-        self.child_5.ui.language_combo.addItem('Russian')
-        self.child_5.ui.language_combo.addItem('English')
-        try:
-            self.child_5.ui.language_combo.setCurrentText(settings['Main']['Language'])
-        except Exception as e:
-            print(e)
-        self.child_5.ui.language_combo.currentIndexChanged.connect(self.change_language)
+            if settings['Main']['Language'] == 'Russian':
+                self.child_5.ui.language_combo.setCurrentText('Russian')
+            else:
+                self.child_5.ui.language_combo.setCurrentText('English')
         self.child_5.ui.buttonBox.accepted.connect(self.save_settings)
         self.child_5.ui.dark_theme_cb.stateChanged.connect(self.change_theme)
         self.child_5.exec_()
 
+
     def change_theme(self):
         if self.child_5.ui.dark_theme_cb.checkState() == False:
             self.child_5.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
+            self.child_5.ui.language_combo.setStyleSheet('selection-background-color: #ff7700')
             self.ui.line.setStyleSheet('color: #afafaf')
             self.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
             self.ui.menubar.setStyleSheet('selection-background-color: #ff7700; selection-color: #000000')
@@ -253,6 +244,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 pass
         else:
             self.child_5.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
+            self.child_5.ui.language_combo.setStyleSheet('selection-background-color: #a14b00')
             self.ui.line.setStyleSheet('color: #4a4a4a')
             self.child.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
             self.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
@@ -276,32 +268,27 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def save_settings(self):
         try:
+            settings.read('settings')
+            settings['Main']['Language'] = self.child_5.ui.language_combo.currentText()
             if self.child_5.ui.dark_theme_cb.checkState() == 0:
-                if self.child_5.ui.save_msghistory_cb.checkState() == 0:
-                    if self.child_5.ui.msgs_hint.checkState() == 0:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Disabled', 'MsgHistory': 'Disabled', 'MessagesHint': 'Enabled'}
-                    else:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Disabled', 'MsgHistory': 'Disabled', 'MessagesHint': 'Disabled'}
-                else:
-                    if self.child_5.ui.msgs_hint.checkState() == 0:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Disabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Enabled'}
-                    else:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Disabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled'}
+                settings['Main']['DarkTheme'] = 'Disabled'
             else:
-                if self.child_5.ui.save_msghistory_cb.checkState() == 0:
-                    if self.child_5.ui.msgs_hint.checkState() == 0:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Disabled', 'MessagesHint': 'Enabled'}
-                    else:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Disabled', 'MessagesHint': 'Disabled'}
-                else:
-                    if self.child_5.ui.msgs_hint.checkState() == 0:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Enabled'}
-                    else:
-                        settings['Main'] = {'Language': self.child_5.ui.language_combo.currentText(), 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled'}
-            with open('settings', 'w') as configfile:
+                settings['Main']['DarkTheme'] = 'Enabled'
+
+            if self.child_5.ui.msgs_hint.checkState() == 0:
+                settings['Main']['MessagesHint'] = 'Disabled'
+            else:
+                settings['Main']['MessagesHint'] = 'Enabled'
+
+            if self.child_5.ui.save_msghistory_cb.checkState() == 0:
+                settings['Main']['MsgHistory'] = 'Disabled'
+            else:
+                settings['Main']['MsgHistory'] = 'Enabled'
+            with open('settings', 'w+') as configfile:
                 settings.write(configfile)
-        except:
-            pass
+            translator.translate_001(self, self.child.ui, settings['Main']['Language'], en_US, ru_RU)
+        except Exception as e:
+            print(e)
 
     def connect_window(self):
         self.child.ui.language_label.setVisible(False)
@@ -656,33 +643,39 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         if self.parent.ui.message_text.text() != '':
             self.parent.ui.send_msg_btn.setEnabled(True)
             self.contextMenu = QMenu(self)
-            if self.parent.ui.message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessagesHint'] == 'Enabled':
-                settings.read('settings')
-                if settings.sections() != [] and settings['Main']['Language'] == 'English':
-                    self.signin_item = self.contextMenu.addAction(en_US.get()['nicksv_a'], self.command_choosed)
-                    self.joinch_item = self.contextMenu.addAction(en_US.get()['joinch_a'], self.command_choosed)
-                    self.names_item = self.contextMenu.addAction(en_US.get()['namesact'], self.command_choosed)
-                    self.whois_item = self.contextMenu.addAction(en_US.get()['whois_a'], self.command_choosed)
-                    self.part_item = self.contextMenu.addAction(en_US.get()['part_act'], self.command_choosed)
-                    self.quit_item = self.contextMenu.addAction(en_US.get()['quit_act'], self.command_choosed)
-                    self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
-                else:
-                    self.signin_item = self.contextMenu.addAction(ru_RU.get()['nicksv_a'], self.command_choosed)
-                    self.joinch_item = self.contextMenu.addAction(ru_RU.get()['joinch_a'], self.command_choosed)
-                    self.names_item = self.contextMenu.addAction(ru_RU.get()['namesact'], self.command_choosed)
-                    self.whois_item = self.contextMenu.addAction(ru_RU.get()['whois_a'], self.command_choosed)
-                    self.part_item = self.contextMenu.addAction(ru_RU.get()['part_act'], self.command_choosed)
-                    self.quit_item = self.contextMenu.addAction(ru_RU.get()['quit_act'], self.command_choosed)
-                    self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
-                try:
-                    commands = self.contextMenu.popup(self.parent.ui.message_text.mapToGlobal(QPoint(0, -176)))
-                except Exception as e:
-                    print(e)
+            try:
+                if self.parent.ui.message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessagesHint'] == 'Enabled':
+                    settings.read('settings')
+                    if settings.sections() != [] and settings['Main']['Language'] == 'English':
+                        self.signin_item = self.contextMenu.addAction(en_US.get()['nicksv_a'], self.command_choosed)
+                        self.joinch_item = self.contextMenu.addAction(en_US.get()['joinch_a'], self.command_choosed)
+                        self.names_item = self.contextMenu.addAction(en_US.get()['namesact'], self.command_choosed)
+                        self.whois_item = self.contextMenu.addAction(en_US.get()['whois_a'], self.command_choosed)
+                        self.part_item = self.contextMenu.addAction(en_US.get()['part_act'], self.command_choosed)
+                        self.quit_item = self.contextMenu.addAction(en_US.get()['quit_act'], self.command_choosed)
+                        self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
+                    else:
+                        self.signin_item = self.contextMenu.addAction(ru_RU.get()['nicksv_a'], self.command_choosed)
+                        self.joinch_item = self.contextMenu.addAction(ru_RU.get()['joinch_a'], self.command_choosed)
+                        self.names_item = self.contextMenu.addAction(ru_RU.get()['namesact'], self.command_choosed)
+                        self.whois_item = self.contextMenu.addAction(ru_RU.get()['whois_a'], self.command_choosed)
+                        self.part_item = self.contextMenu.addAction(ru_RU.get()['part_act'], self.command_choosed)
+                        self.quit_item = self.contextMenu.addAction(ru_RU.get()['quit_act'], self.command_choosed)
+                        self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
+                    try:
+                        commands = self.contextMenu.popup(self.parent.ui.message_text.mapToGlobal(QPoint(0, -176)))
+                    except Exception as e:
+                        print(e)
+            except:
+                pass
             settings.read('settings')
-            if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
-                self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
-            else:
-               self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+            try:
+                if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
+                    self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
+                else:
+                    self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+            except:
+                pass
             self.parent.ui.message_text.returnPressed.connect(self.send_msg)
         else:
             self.parent.ui.send_msg_btn.setEnabled(False)
@@ -802,12 +795,23 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 members_list.setExpanded(True)
                 owners_list.setExpanded(True)
                 self.parent.ui.members_list.setVisible(True)
-
+            elif msg_line.startswith('{0} {1}'.format(self.server, 372)):
+                self.parent.ui.chat_text.setPlainText('{0}\nServer Message: {1}'.format(self.parent.ui.chat_text.toPlainText(), " ".join(msg_line.split(' ')[3:])))
             elif msg_line.find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'PRIVMSG':
                         self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                except Exception as e:
+                    print(e)
+                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
+                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.find('MODE') != -1:
+                try:
+                    decoded_text = status.replace('!', ' ').split(' ')
+                    if decoded_text[2] == 'MODE':
+                        self.parent.ui.chat_text.setPlainText('{0}\nEnabled user modes for {1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                         self.parent.ui.chat_text.moveCursor(QTextCursor.End)
                 except Exception as e:
                     print(e)
@@ -884,13 +888,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.ui.channel_name.setText(msg_list[1])
             except:
                 pass
-        elif self.parent.ui.message_text.text().startswith('/whois '):
+        elif self.parent.ui.message_text.text().startswith('/whois'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
                 nick = msg_list[1]
                 self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
-                pass
+                self.socket.send(bytes('WHOIS\r\n', self.encoding))
         elif self.parent.ui.message_text.text() == ('/leave') or self.parent.ui.message_text.text() == ('/part'):
             try:
                 msg_list = self.parent.ui.message_text.text().split(' ')
@@ -1062,6 +1066,8 @@ class AdvancedSettingsDlg(QtWidgets.QDialog, ext_sett):
         self.ui.setupUi(self)
         self.parent = parent
         settings.read('settings')
+        if settings.sections() != []:
+            self.ui.language_combo.setCurrentText(settings['Main']['Language'])
 
 app = QtWidgets.QApplication([])
 app.setStyle('Fusion')
