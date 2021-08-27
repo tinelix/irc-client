@@ -218,6 +218,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.child_5.ui.save_msghistory_cb.setCheckState(0)
             else:
                 self.child_5.ui.save_msghistory_cb.setCheckState(2)
+        self.ui.language_combo.clear()
         self.child_5.ui.language_combo.addItem('English')
         self.child_5.ui.language_combo.addItem('Russian')
         try:
