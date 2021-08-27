@@ -868,12 +868,12 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     if not os.path.exists('history'):
                         os.makedirs('history')
                         with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                        f.write(self.parent.ui.chat_text.toPlainText())
+                            f.write(self.parent.ui.chat_text.toPlainText())
                     else:
                         with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
                             f.write(self.parent.ui.chat_text.toPlainText())
-                except:
-                    pass
+            except:
+                pass
 
     def send_msg(self):
         if self.parent.ui.message_text.text().startswith('/join #'):
