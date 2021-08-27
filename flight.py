@@ -655,7 +655,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         if self.parent.ui.message_text.text() != '':
             self.parent.ui.send_msg_btn.setEnabled(True)
             self.contextMenu = QMenu(self)
-            if self.parent.ui.message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessageHint'] == 'Enabled':
+            if self.parent.ui.message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessagesHint'] == 'Enabled':
                 settings.read('settings')
                 if settings.sections() != [] and settings['Main']['Language'] == 'English':
                     self.signin_item = self.contextMenu.addAction(en_US.get()['nicksv_a'], self.command_choosed)
