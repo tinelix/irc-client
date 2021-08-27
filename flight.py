@@ -219,8 +219,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 self.child_5.ui.save_msghistory_cb.setCheckState(2)
         self.child_5.ui.language_combo.clear()
-        self.child_5.ui.language_combo.addItem('English')
         self.child_5.ui.language_combo.addItem('Russian')
+        self.child_5.ui.language_combo.addItem('English')
         try:
             self.child_5.ui.language_combo.setCurrentText(settings['Main']['Language'])
         except Exception as e:
