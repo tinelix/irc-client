@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
 from functools import *
@@ -16,12 +16,16 @@ from dlg002 import Ui_Dialog as swiz_002
 from dlg003 import Ui_Dialog as swiz_003
 from dlg004 import Ui_Dialog as aboutprg
 from dlg005 import Ui_Dialog as ext_sett
+from chat_widget import Ui_Form as chatwidg
+from mention_notif import Ui_Dialog as mention_notif_window
 
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.2.2 Beta'
-date = '2021-08-27'
+version = '0.3.0 Beta'
+date = '2021-08-28'
+
+init_required = 1
 
 now = datetime.datetime.now()
 
@@ -33,6 +37,19 @@ def search(list, platform):
         if list[i] == platform:
             return True
     return False
+
+class ChatWidget(QtWidgets.QWidget, chatwidg):
+    def __init__(self, parent=None):
+        super(ChatWidget, self).__init__(parent)
+        self.parent = parent
+        self = self.setupUi(self)
+        try:
+            self.chat_text.setObjectName('chat_text_{0}'.format(self.parent.parent.count() + 1))
+            self.members_list.setObjectName('members_list_{0}'.format(self.parent.parent.count() + 1))
+            self.message_text.setObjectName('message_text_{0}'.format(self.parent.parent.count() + 1))
+            self.send_msg_btn.setObjectName('send_msg_btn_{0}'.format(self.parent.parent.count() + 1))
+        except:
+            pass
 
 class Thread(QThread):
     logged = QtCore.pyqtSignal(str, str, float, str, str, str, float, socket.socket)
@@ -78,7 +95,9 @@ class Thread(QThread):
 
 
                 except Exception as e:
-                    print('Exception: {0}'.format(e))
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
                     self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
                     self.socket.close()
 
@@ -97,6 +116,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.child_3 = SettingsWizard003()
         self.child_4 = AboutProgramDlg()
         self.child_5 = AdvancedSettingsDlg()
+        self.child_widget = ChatWidget(self)
         self.ui.about_item.triggered.connect(self.about_window)
         self.ui.connect_item.triggered.connect(self.connect_window)
         self.ui.settings_item.triggered.connect(self.settings_window)
@@ -104,8 +124,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         settings.read('settings')
         profiles.read('profiles')
         print('Tinelix codename Flight {0} ({1})\nDone!'.format(version, date))
-        self.ui.dialogs_list.setVisible(False)
-        self.ui.members_list.setVisible(False)
+        self.ui.tabs.addTab(self.child_widget, 'Thread')
+        self.child_widget.members_list.setVisible(False)
 
         if settings.sections() == []:
             settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled'}
@@ -119,44 +139,54 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
                 self.ui.menubar.setStyleSheet('selection-background-color: #ff7700; selection-color: #000000')
                 self.ui.conn_quality_progr.setStyleSheet('selection-background-color: #ff7700')
-                self.ui.chat_text.setStyleSheet('selection-background-color: #ff7700')
-                self.ui.members_list.setStyleSheet('selection-background-color: #ff7700')
-                if self.ui.message_text.isEnabled() == True:
-                    self.ui.message_text.setStyleSheet('selection-background-color: #ff7700')
+                self.child_widget.chat_text.setStyleSheet('selection-background-color: #ff7700')
+                self.child_widget.members_list.setStyleSheet('selection-background-color: #ff7700')
+                if self.child_widget.message_text.isEnabled() == True:
+                    self.child_widget.message_text.setStyleSheet('selection-background-color: #ff7700')
             else:
                 self.ui.line.setStyleSheet('color: #4a4a4a')
                 self.child.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
                 self.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
                 self.ui.menubar.setStyleSheet('selection-background-color: #a14b00; selection-color: #ffffff')
                 self.ui.conn_quality_progr.setStyleSheet('selection-background-color: #a14b00')
-                self.ui.chat_text.setStyleSheet('selection-background-color: #a14b00')
-                self.ui.members_list.setStyleSheet('selection-background-color: #a14b00')
-                if self.ui.message_text.isEnabled() == True:
-                    self.ui.message_text.setStyleSheet('selection-background-color: #a14b00')
+                self.child_widget.chat_text.setStyleSheet('selection-background-color: #a14b00')
+                self.child_widget.members_list.setStyleSheet('selection-background-color: #a14b00')
+                if self.child_widget.message_text.isEnabled() == True:
+                    self.child_widget.message_text.setStyleSheet('selection-background-color: #a14b00')
 
         #swiz001 = SettingsWizard001()
-        self.child.show()
+        if settings.sections() == [] or profiles.sections == []:
+            self.child.show()
         if settings['Main']['DarkTheme'] == 'Disabled':
             self.child.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
+            for i in range(self.ui.tabs.count()):
+                tab = self.ui.tabs.widget(i)
+                tab.setStyleSheet('background-color: #ffffff;\ncolor: #000000;\nselection-background-color: #ff7700')
             self.child.ui.tableWidget.setStyleSheet('border-color: #ff7700; selection-background-color: #ff7700')
             self.child.ui.language_combo.setStyleSheet('border-color: #ff7700; selection-background-color: #ff7700')
         else:
             self.child.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
             self.child.ui.tableWidget.setStyleSheet('border-color: #ff7700; selection-background-color: #a14b00')
             self.child.ui.language_combo.setStyleSheet('border-color: #ff7700; selection-background-color: #a14b00')
+            for i in range(self.ui.tabs.count()):
+                tab = self.ui.tabs.widget(i)
+                tab.setStyleSheet('background-color: #313131;\ncolor: #ffffff;\nselection-background-color: #a14b00')
         try:
             self.child.ui.language_combo.setCurrentText(settings['Main']['Language'])
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
         try:
             self.child_5.ui.language_combo.setCurrentText(settings['Main']['Language'])
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
         self.child.ui.language_combo.currentIndexChanged.connect(self.change_language)
 
     def change_language(self):
         index = self.child.ui.language_combo.currentIndex()
-        print(index)
         try:
             if index == 0:
                 settings['Main']['Language'] = 'Russian'
@@ -170,7 +200,9 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 translator.translate_001(self, self.child.ui, 'English', en_US, ru_RU)
             settings.read('settings')
         except Exception as e:
-            print('Exception: {0}'.format(e))
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
 
     def about_window(self):
         settings.read('settings')
@@ -183,9 +215,9 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             translator.translate_004(self, self.child_4.ui, settings['Main']['Language'], en_US, ru_RU)
             if settings['Main']['DarkTheme'] == 'Disabled':
-                self.child_4.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
+                self.child_4.setStyleSheet('background-color: #ffffff;\ncolor: #000000;\nselection-background-color: #ff7700')
             else:
-                self.child_4.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
+                self.child_4.setStyleSheet('background-color: #313131;\ncolor: #ffffff;\nselection-background-color: #a14b00')
         self.child_4.exec_()
 
 
@@ -230,10 +262,16 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
             self.ui.menubar.setStyleSheet('selection-background-color: #ff7700; selection-color: #000000')
             self.ui.conn_quality_progr.setStyleSheet('selection-background-color: #ff7700')
-            self.ui.chat_text.setStyleSheet('selection-background-color: #ff7700')
-            self.ui.members_list.setStyleSheet('selection-background-color: #ff7700')
-            if self.ui.message_text.isEnabled() == True:
-                self.ui.message_text.setStyleSheet('selection-background-color: #ff7700')
+            for i in range(self.ui.tabs.count()):
+                tab = self.ui.tabs.widget(i)
+                tab.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
+                tab.chat_text.setStyleSheet('selection-background-color: #ff7700')
+                tab.members_list.setStyleSheet('selection-background-color: #ff7700')
+            if self.child_widget.message_text.isEnabled() == True:
+                self.child_widget.message_text.setStyleSheet('selection-background-color: #ff7700')
+            else:
+                self.child_widget.message_text.setStyleSheet('selection-background-color: #ff7700; color: #4f4f4f')
+                self.child_widget.send_msg_btn.setEnabled(False)
             try:
                 self.child.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
                 self.child.ui.tableWidget.setStyleSheet('selection-background-color: #ff7700; selection-color: #000000')
@@ -252,10 +290,13 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
             self.ui.menubar.setStyleSheet('selection-background-color: #a14b00; selection-color: #ffffff')
             self.ui.conn_quality_progr.setStyleSheet('selection-background-color: #a14b00')
-            self.ui.chat_text.setStyleSheet('selection-background-color: #a14b00')
-            self.ui.members_list.setStyleSheet('selection-background-color: #a14b00')
-            if self.ui.message_text.isEnabled() == True:
-                self.ui.message_text.setStyleSheet('selection-background-color: #a14b00')
+            for i in range(self.ui.tabs.count()):
+                tab = self.ui.tabs.widget(i)
+                tab.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
+                tab.chat_text.setStyleSheet('selection-background-color: #a14b00')
+                tab.members_list.setStyleSheet('selection-background-color: #a14b00')
+            if self.child_widget.message_text.isEnabled() == True:
+                self.child_widget.message_text.setStyleSheet('selection-background-color: #a14b00')
             try:
                 self.child.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
                 self.child.ui.tableWidget.setStyleSheet('selection-background-color: #ff7700; selection-color: #000000')
@@ -290,7 +331,9 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 settings.write(configfile)
             translator.translate_001(self, self.child.ui, settings['Main']['Language'], en_US, ru_RU)
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
 
     def connect_window(self):
         self.child.ui.language_label.setVisible(False)
@@ -392,7 +435,9 @@ class SettingsWizard003(QtWidgets.QDialog):
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
-                pass
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
 
     def clear_nicknames(self):
         self.ui.nicknames_combo.currentIndexChanged.disconnect()
@@ -404,7 +449,9 @@ class SettingsWizard003(QtWidgets.QDialog):
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
-                print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
         if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
             self.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
         elif settings.sections() != [] and settings['Main']['Language'] == 'English':
@@ -555,6 +602,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.parent = parent
         self.channel = None
         self.timer = QTimer()
+        self.connected = False
         self.timer.timeout.connect(self.tick)
         self.timer.start(100)
         self.sections_count = None
@@ -615,25 +663,26 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         ping_count = 0
         self.thread.started.connect(self.started)
         self.thread.start()
+        self.connected = True
         self.now = datetime.datetime.now()
-        self.parent.ui.message_text.setText('')
-        self.parent.ui.message_text.setEnabled(True)
+        self.parent.child_widget.message_text.setText('')
+        self.parent.child_widget.message_text.setEnabled(True)
         if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
-            self.parent.ui.message_text.setStyleSheet('selection-background-color: rgb(255, 119, 0); color: #000000')
+            self.parent.child_widget.message_text.setStyleSheet('selection-background-color: rgb(255, 119, 0); color: #000000')
         else:
-            self.parent.ui.message_text.setStyleSheet('selection-background-color: rgb(161, 75, 0); color: #ffffff')
-        if self.parent.ui.message_text.text() != '':
-            self.parent.ui.send_msg_btn.setEnabled(True)
+            self.parent.child_widget.message_text.setStyleSheet('selection-background-color: rgb(161, 75, 0); color: #ffffff')
+        if self.parent.child_widget.message_text.text() != '':
+            self.parent.child_widget.send_msg_btn.setEnabled(True)
             if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
-                self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
+                self.parent.child_widget.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
             else:
-               self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
-            self.parent.ui.message_text.returnPressed.connect(self.send_msg)
+               self.parent.child_widget.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+            self.parent.child_widget.message_text.returnPressed.connect(self.send_msg)
         else:
-            self.parent.ui.send_msg_btn.setEnabled(False)
-            self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
-        self.parent.ui.send_msg_btn.clicked.connect(self.send_msg)
-        self.parent.ui.message_text.textChanged.connect(self.msgtext_changing)
+            self.parent.child_widget.send_msg_btn.setEnabled(False)
+            self.parent.child_widget.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
+        self.parent.child_widget.send_msg_btn.clicked.connect(self.send_msg)
+        self.parent.child_widget.message_text.textChanged.connect(self.msgtext_changing)
         settings.read('settings')
         if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
             self.ui.connect_btn.setText(ru_RU.get()['dscn_btn'])
@@ -643,11 +692,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.ui.connect_btn.clicked.connect(self.irc_disconnect)
 
     def msgtext_changing(self):
-        if self.parent.ui.message_text.text() != '':
-            self.parent.ui.send_msg_btn.setEnabled(True)
+        if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != '':
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).send_msg_btn.setEnabled(True)
             self.contextMenu = QMenu(self)
             try:
-                if self.parent.ui.message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessagesHint'] == 'Enabled':
+                if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == '/' and settings.sections() != [] and settings['Main']['MessagesHint'] == 'Enabled':
                     settings.read('settings')
                     if settings.sections() != [] and settings['Main']['Language'] == 'English':
                         self.signin_item = self.contextMenu.addAction(en_US.get()['nicksv_a'], self.command_choosed)
@@ -666,42 +715,51 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.quit_item = self.contextMenu.addAction(ru_RU.get()['quit_act'], self.command_choosed)
                         self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
                     try:
-                        commands = self.contextMenu.popup(self.parent.ui.message_text.mapToGlobal(QPoint(0, -176)))
+                        commands = self.contextMenu.popup(self.parent.child_widget.message_text.mapToGlobal(QPoint(0, -176)))
                     except Exception as e:
-                        print(e)
+                        exc_type, exc_value, exc_tb = sys.exc_info()
+                        ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                        print("\n".join(ex))
             except:
                 pass
             settings.read('settings')
             try:
                 if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
-                    self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
+                    for i in range(self.parent.ui.tabs.count()):
+                        self.parent.ui.tabs.widget(i).send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
+                        self.parent.ui.tabs.widget(i).message_text.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #000000')
                 else:
-                    self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+                    for i in range(self.parent.ui.tabs.count()):
+                        self.parent.ui.tabs.widget(i).send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+                        self.parent.ui.tabs.widget(i).message_text.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #ffffff')
+                if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.isEnabled == False:
+                    self.parent.ui.tabs.widget(i).send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
+                    self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).send_msg_btn.setEnabled(False)
             except:
                 pass
-            self.parent.ui.message_text.returnPressed.connect(self.send_msg)
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.returnPressed.connect(self.send_msg)
         else:
-            self.parent.ui.send_msg_btn.setEnabled(False)
-            self.parent.ui.send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).send_msg_btn.setEnabled(False)
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).send_msg_btn.setStyleSheet('border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f')
             try:
-                self.parent.ui.message_text.returnPressed.disconnect()
+                self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.returnPressed.disconnect()
             except:
                 pass
     @QtCore.pyqtSlot()
     def command_choosed(self):
         command = self.sender()
         if command == self.signin_item:
-            self.parent.ui.message_text.setText('/nickserv')
+            self.parent.child_widget.message_text.setText('/nickserv')
         elif command == self.joinch_item:
-            self.parent.ui.message_text.setText('/join #')
+            self.parent.child_widget.message_text.setText('/join #')
         elif command == self.names_item:
-            self.parent.ui.message_text.setText('/names')
+            self.parent.child_widget.message_text.setText('/names')
         elif command == self.whois_item:
-            self.parent.ui.message_text.setText('/whois')
+            self.parent.child_widget.message_text.setText('/whois')
         elif command == self.part_item:
-            self.parent.ui.message_text.setText('/part')
+            self.parent.child_widget.message_text.setText('/part')
         elif command == self.quit_item:
-            self.parent.ui.message_text.setText('/quit')
+            self.parent.child_widget.message_text.setText('/quit')
 
     def irc_disconnect(self):
         try:
@@ -709,8 +767,8 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             print('Disconnecting...')
             self.socket.send(bytes('QUIT {0}\r\n'.format(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg']), self.encoding))
             self.socket.close()
-            self.parent.ui.send_msg_btn.setEnabled(False)
-            self.parent.ui.message_text.setEnabled(False)
+            self.parent.child_widget.send_msg_btn.setEnabled(False)
+            self.parent.child_widget.message_text.setEnabled(False)
             self.ui.connect_btn.clicked.connect(self.irc_connect)
             settings.read('settings')
             if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
@@ -718,13 +776,14 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             elif settings.sections() != [] and settings['Main']['Language'] == 'English':
                 self.ui.connect_btn.setText(en_US.get()['conn_btn'])
             self.timer.start()
-            self.parent.ui.members_list.clear()
-            self.parent.ui.members_list.setVisible(False)
+            self.parent.child_widget.members_list.clear()
+            self.parent.child_widget.members_list.setVisible(False)
             self.parent.ui.conn_quality_progr.setValue(0)
             self.parent.ui.latency_label.setText('')
-            self.parent.ui.message_text.setEnabled(False)
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
 
     @QtCore.pyqtSlot(str, str, float, str, str, str, float, socket.socket)
     def started(self, status, server, port, nickname, encoding, quiting_msg, ping, socket):
@@ -753,7 +812,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 2)))
                         else:
                             self.parent.ui.latency_label.setText('({0} ms)'.format(round((self.last_ping - self.ping) * 1000, 1)))
-                        self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
+                        if settings.sections() != [] and settings['Main']['Language'] == 'English':
+                            self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
+                        else:
+                            self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
                     else:
                        self.parent.ui.conn_quality_progr.setValue(0)
                        self.parent.ui.latency_label.setText('')
@@ -761,7 +823,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     pass
             elif msg_line.startswith('{0} PONG'.format(self.server)):
                 decoded_text = status.split(' ')
-                self.parent.ui.chat_text.setPlainText('{0}\n{1}: Pong! ({2})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[3].splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                for i in range(self.parent.ui.tabs.count()):
+                    if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                        tab = self.parent.ui.tabs.widget(i)
+                        tab.chat_text.setPlainText('{0}\n{1}: Pong! ({2})'.format(tab.chat_text.toPlainText(), decoded_text[3].splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
             elif msg_line.startswith('{0} {1}'.format(self.server, 353)):
                 try:
                     self.names_raw = msg_line.split(' ')[5:]
@@ -773,9 +838,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         else:
                             self.members.append(nick.replace(':', '').replace('~', '').replace('&', ''))
                 except Exception as e:
-                    print(e)
-            elif msg_line.startswith('{0} {1}'.format(self.server, 366)):
-                self.parent.ui.members_list.clear()
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+            elif msg_line.startswith('{0} {1} {2} {3}'.format(self.server, 366, self.nickname, self.channel)):
+                decoded_text = status.split(' ')
                 if settings['Main']['Language'] == 'English':
                     owners_list = QTreeWidgetItem([en_US.get()['owners']])
                     operators_list = QTreeWidgetItem([en_US.get()['oprtors']])
@@ -796,46 +863,80 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     if owner != '':
                         child = QTreeWidgetItem([owner])
                         owners_list.addChild(child)
-                self.parent.ui.members_list.addTopLevelItems([owners_list, operators_list, members_list])
+                for i in range(self.parent.ui.tabs.count()):
+                    if self.parent.ui.tabs.tabText(i) == self.channel:
+                        tab = self.parent.ui.tabs.widget(i)
+                        tab.members_list.clear()
+                        tab.members_list.addTopLevelItems([owners_list, operators_list, members_list])
                 operators_list.setExpanded(True)
                 members_list.setExpanded(True)
                 owners_list.setExpanded(True)
-                self.parent.ui.members_list.setVisible(True)
+            elif msg_line.startswith('{0} {1}'.format(self.server, 366)):
+                pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 372)):
-                self.parent.ui.chat_text.setPlainText('{0}\nServer Message: {1}'.format(self.parent.ui.chat_text.toPlainText(), " ".join(msg_line.split(' ')[3:])))
+                self.parent.child_widget.chat_text.setPlainText('{0}\nServer Message: {1}'.format(self.parent.child_widget.chat_text.toPlainText(), " ".join(msg_line.split(' ')[3:])))
             elif msg_line.startswith('{0} {1}'.format(self.server, 321)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 322)):
-                try:
-                    self.parent.ui.chat_text.setPlainText('{0}\nChannel: {1}\nTopic: {2}\nMembers: {3}\n------------------'.format(self.parent.ui.chat_text.toPlainText(), msg_line.split(' ')[3], " ".join(msg_line.split(' ')[5:]), msg_line.split(' ')[4]))
-                except:
-                    pass
+                for i in range(self.parent.ui.tabs.count()):
+                    if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                        tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                        try:
+                            tab.chat_text.setPlainText('{0}\nChannel: {1}\nTopic: {2}\nMembers: {3}\n------------------'.format(tab.chat_text.toPlainText(), msg_line.split(' ')[3], " ".join(msg_line.split(' ')[5:]), msg_line.split(' ')[4]))
+                        except:
+                            pass
             elif msg_line.find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'PRIVMSG':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        for i in range(self.parent.ui.tabs.count()):
+                            if self.parent.ui.tabs.tabText(i) == decoded_text[3]:
+                                tab = self.parent.ui.tabs.widget(i)
+                                tab.chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(tab.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                if ' '.join(decoded_text[4:]).splitlines()[0].startswith(self.nickname):
+                                    mention_notif = MentionNotificationWindow(self)
+                                    mention_notif.setWindowFlags(mention_notif.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+                                    mention_notif.setStyleSheet('border-radius: 2px; opacity: 100;')
+                                    screen = app.primaryScreen()
+                                    size = screen.size()
+                                    mention_notif.setGeometry(size.width() - 320, size.height() - 180, 313, 128)
+                                    if settings['Main']['Language'] == 'English':
+                                        mention_notif.ui.nickname_label.setText(en_US.get()['mentionl'].format(decoded_text[0]))
+                                        mention_notif.ui.openclient_btn.setText(en_US.get()['opclient'])
+                                    else:
+                                        mention_notif.ui.nickname_label.setText(ru_RU.get()['mentionl'].format(decoded_text[0]))
+                                        mention_notif.ui.openclient_btn.setText(ru_RU.get()['opclient'])
+                                    mention_notif.ui.msg_text.setText(' '.join(decoded_text[4:]).splitlines()[0])
+                                    mention_notif.show()
+                                tab.chat_text.moveCursor(QTextCursor.End)
                 except Exception as e:
-                    print(e)
-                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    self.parent.child_widget.chat_text.setPlainText('{0}\n{1}'.format(self.parent.child_widget.chat_text.toPlainText(), msg_line))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.find('MODE') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'MODE':
-                        self.parent.ui.chat_text.setPlainText('{0}\nEnabled user modes for {1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        self.parent.child_widget.chat_text.setPlainText('{0}\nEnabled user modes for {1}: {2} ({3})'.format(self.parent.child_widget.chat_text.toPlainText(), decoded_text[0], ' '.join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
                 except Exception as e:
-                    print(e)
-                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    self.parent.child_widget.chat_text.setPlainText('{0}\n{1}'.format(self.parent.child_widget.chat_text.toPlainText(), msg_line))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.find('JOIN') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'JOIN':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1} joined on the channel {2}. ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        for i in range(self.parent.ui.tabs.count()):
+                            if self.parent.ui.tabs.tabText(i) == decoded_text[3].splitlines()[0]:
+                                tab = self.parent.ui.tabs.widget(i)
+                                tab.chat_text.setPlainText('{0}\n{1} joined on the channel {2}. ({3})'.format(tab.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                tab.chat_text.moveCursor(QTextCursor.End)
+                                self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         try:
                             if settings['Main']['Language'] == 'English':
                                 self.parent.ui.status_label.setText(en_US.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
@@ -843,148 +944,229 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                 self.parent.ui.status_label.setText(ru_RU.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
                         except:
                             pass
-                        self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.channel_name.text()), self.encoding))
+                except:
+                    pass
+            elif msg_line.find('PART') != -1:
+                try:
+                    decoded_text = status.replace('!', ' ').split(' ')
+                    if decoded_text[0] == self.nickname:
+                        pass
+                    elif decoded_text[2] == 'PART':
+                        for i in range(self.parent.ui.tabs.count()):
+                            if self.parent.ui.tabs.tabText(i) == decoded_text[3].splitlines()[0]:
+                                tab = self.parent.ui.tabs.widget(i)
+                                tab.chat_text.setPlainText('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toPlainText(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                tab.chat_text.moveCursor(QTextCursor.End)
+                                self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
+                        try:
+                            if settings['Main']['Language'] == 'English':
+                                self.parent.ui.status_label.setText(en_US.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
+                            else:
+                                self.parent.ui.status_label.setText(ru_RU.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
+                        except:
+                            pass
                 except Exception as e:
-                    print(e)
-                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    self.parent.child_widget.chat_text.setPlainText('{0}\n{1}'.format(self.parent.child_widget.chat_text.toPlainText(), msg_line))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
 
             elif msg_line.find('QUIT') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'QUIT':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1} quited with reason: {2}. ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        for i in range(self.parent.ui.tabs.count()):
+                            if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                                tab.chat_text.setPlainText('{0}\n{1} quited with reason: {2}. ({3})'.format(tab.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                tab.chat_text.moveCursor(QTextCursor.End)
+                                self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         if settings['Main']['Language'] == 'English':
                             self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
                         else:
                             self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
-                        self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.channel_name.text()), self.encoding))
                 except:
-                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                    self.parent.child_widget.chat_text.setPlainText('{0}\n{1}'.format(self.parent.child_widget.chat_text.toPlainText(), msg_line))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.find('NICK') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'NICK':
-                        self.parent.ui.chat_text.setPlainText('{0}\n{1} changed nickname to {2}. ({3})'.format(self.parent.ui.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                        for i in range(self.parent.ui.tabs.count()):
+                            if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                                tab.chat_text.setPlainText('{0}\n{1} changed nickname to {2}. ({3})'.format(tab.chat_text.toPlainText(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                tab.chat_text.moveCursor(QTextCursor.End)
                         if settings['Main']['Language'] == 'English':
                             self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
                         else:
                             self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
                 except:
-                    self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                    self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                    self.parent.child_widget.chat_text.setPlainText('{0}\n{1}'.format(self.parent.child_widget.chat_text.toPlainText(), msg_line))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.startswith('Exception: '):
-                self.parent.ui.chat_text.setPlainText('{0}'.format(msg_line))
+                self.parent.child_widget.chat_text.setPlainText('{0}'.format(msg_line))
             else:
-                self.parent.ui.chat_text.setPlainText('{0}\n{1}'.format(self.parent.ui.chat_text.toPlainText(), msg_line))
-                self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+                for i in range(self.parent.ui.tabs.count()):
+                    if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                        tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                        tab.chat_text.setPlainText('{0}\n{1}'.format(tab.chat_text.toPlainText(), msg_line))
+                self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             try:
                 if not msg_line.startswith('Exception: ') and settings.sections() != [] and settings['Main']['MsgHistory'] == 'Enabled':
                     if not os.path.exists('history'):
                         os.makedirs('history')
-                        with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                            f.write(self.parent.ui.chat_text.toPlainText())
+                        for i in range(self.parent.ui.tabs.count()):
+                            with open('history/irc_{0}_{1}_{2}.txt'.format(self.parent.ui.tabs.tabText(i), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+                                f.write(self.parent.child_widget.chat_text.toPlainText())
                     else:
-                        with open('history/irc_{0}_{1}.txt'.format(str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                            f.write(self.parent.ui.chat_text.toPlainText())
+                        for i in range(self.parent.ui.tabs.count()):
+                            with open('history/irc_{0}_{1}_{2}.txt'.format(self.parent.ui.tabs.tabText(i), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+                                f.write(self.parent.child_widget.chat_text.toPlainText())
             except:
                 pass
 
     def send_msg(self):
-        if self.parent.ui.message_text.text().startswith('/join '):
-            msg_list = self.parent.ui.message_text.text().split(' ')
-            self.channel = msg_list[1]
+        if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join '):
+            msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
             try:
-                self.socket.send(bytes('JOIN {0}\r\n'.format(msg_list[1]), self.encoding))
-                self.parent.ui.channel_name.setText(msg_list[1])
-            except:
-                pass
-        elif self.parent.ui.message_text.text().startswith('/whois'):
+                if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join #'):
+                    self.socket.send(bytes('JOIN {0}\r\n'.format(msg_list[1]), self.encoding))
+                    self.channel = msg_list[1]
+                else:
+                    self.socket.send(bytes('JOIN #{0}\r\n'.format(msg_list[1]), self.encoding))
+                    self.channel = '#{0}'.format(msg_list[1])
+                self.tab = ChatWidget()
+                settings.read('settings')
+
+                if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
+                    self.tab.setStyleSheet('background-color: #ffffff;\ncolor: #000000;\nselection-background-color: rgb(255, 119, 0);')
+                    self.tab.chat_text.setStyleSheet('selection-background-color: rgb(255, 119, 0);')
+                    self.tab.members_list.setStyleSheet('selection-background-color: #ff7700;')
+                else:
+                    self.tab.setStyleSheet('background-color: #313131;\ncolor: #ffffff;\nselection-background-color: rgb(161, 75, 0);')
+                    self.tab.chat_text.setStyleSheet('selection-background-color: rgb(161, 75, 0);')
+                    self.tab.members_list.setStyleSheet('selection-background-color: #a14b00;')
+                self.parent.ui.tabs.addTab(self.tab, self.channel)
+                self.tab.message_text.setEnabled(True)
+                self.tab.message_text.setText('')
+                self.timer = QTimer()
+                self.timer.timeout.connect(self.chanjoined)
+                self.timer.start(100)
+                self.tab.message_text.textChanged.connect(self.msgtext_changing)
+                if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
+                    self.tab.message_text.setStyleSheet('selection-background-color: rgb(255, 119, 0); color: #000000')
+                else:
+                    self.tab.message_text.setStyleSheet('selection-background-color: rgb(161, 75, 0); color: #ffffff')
+            except Exception as e:
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                print("\n".join(ex))
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/whois'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
+                msg_list = self.parent.child_widget.message_text.text().split(' ')
                 nick = msg_list[1]
                 self.socket.send(bytes('WHOIS {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('WHOIS\r\n', self.encoding))
-        elif self.parent.ui.message_text.text().startswith('/list'):
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/list'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
+                msg_list = self.parent.child_widget.message_text.text().split(' ')
                 self.socket.send(bytes('LIST\r\n', self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text() == ('/leave') or self.parent.ui.message_text.text() == ('/part'):
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == ('/leave') or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == ('/part'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
-                self.socket.send(bytes('PART {0}\r\n'.format(self.channel), self.encoding))
-                self.parent.ui.members_list.clear()
-                self.parent.ui.members_list.setVisible(False)
-                self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
+                msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
+                self.socket.send(bytes('PART {0}\r\n'.format(self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex())), self.encoding))
+                self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).members_list.clear()
+                self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).members_list.setVisible(False)
+                for i in range(self.parent.ui.tabs.count()):
+                    if i > 0 and self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                        self.parent.ui.tabs.removeTab(i)
+                if settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
+                else:
+                    self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
             except:
                 pass
-        elif self.parent.ui.message_text.text().startswith('/names') or self.parent.ui.message_text.text().startswith('/members'):
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/names') or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/members'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
+                msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
+                for i in range(self.parent.ui.tabs.count()):
+                    self.parent.ui.tabs.widget(i).members_list.clear()
                 self.socket.send(bytes('NAMES {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('NAMES {0}\r\n'.format(self.channel), self.encoding))
-        elif self.parent.ui.message_text.text().startswith('/nickserv identify') or self.parent.ui.message_text.text().startswith('/msg nickserv identify'):
-            msg_list = self.parent.ui.message_text.text().split(' ')
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/nickserv identify') or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/msg nickserv identify'):
+            msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
             password = msg_list[len(msg_list) - 1]
             self.socket.send(bytes('PRIVMSG nickserv identify {0} {1}\r\n'.format(self.nickname, password), self.encoding))
-        elif self.parent.ui.message_text.text() == '/info':
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == '/info':
             try:
                 self.socket.send(bytes('INFO\r\n', self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text().startswith('/ping'):
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/ping'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
+                msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
                 self.socket.send(bytes('PING {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 pass
-        elif self.parent.ui.message_text.text() == '/disconnect' or self.parent.ui.message_text.text().startswith('/quit'):
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == '/disconnect' or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/quit'):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
             self.socket.close()
+            for i in range(self.parent.ui.tabs.count()):
+                if i > 0 and self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                    self.parent.ui.tabs.removeTab(i)
             self.ui.connect_btn.clicked.connect(self.irc_connect)
             if settings.sections() != [] and settings['Main']['Language'] == 'English':
                 self.ui.connect_btn.setText(en_US.get()['conn_btn'])
             else:
                 self.ui.connect_btn.setText(ru_RU.get()['conn_btn'])
-            self.parent.ui.members_list.clear()
-            self.parent.ui.members_list.setVisible(False)
+            self.parent.child_widget.members_list.clear()
+            self.parent.child_widget.members_list.setVisible(False)
             self.parent.setWindowTitle('Tinelix IRC Client')
             if settings.sections() != [] and settings['Main']['Language'] == 'English':
-                self.parent.ui.message_text.setText(en_US.get()['cantsmsg'])
+                self.parent.child_widget.message_text.setText(en_US.get()['cantsmsg'])
             else:
-                self.parent.ui.message_text.setText(ru_RU.get()['cantsmsg'])
+                self.parent.child_widget.message_text.setText(ru_RU.get()['cantsmsg'])
             self.parent.ui.conn_quality_progr.setValue(0)
             self.parent.ui.latency_label.setText('')
-            self.parent.ui.message_text.setEnabled(False)
-        elif self.parent.ui.message_text.text().startswith('/'):
+            self.parent.child_widget.message_text.setEnabled(False)
+            self.server = None
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
-                self.socket.send(bytes('{0}\r\n'.format(''.join(self.parent.ui.message_text.text()[1:])), self.encoding))
+                msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
+                self.socket.send(bytes('{0}\r\n'.format(''.join(self.parent.child_widget.message_text.text()[1:])), self.encoding))
             except Exception as e:
-                print(e)
-        elif self.channel != None:
-            self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.channel, self.parent.ui.message_text.text()), self.encoding))
-        if self.parent.ui.message_text.text().startswith('/nickserv identify'):
-            self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} [password] ({3})'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, ' '.join(self.parent.ui.message_text.text().split(' ')[:2]), datetime.datetime.now().strftime("%H:%M:%S")))
-        elif self.parent.ui.message_text.text().startswith('/nick'):
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                print("\n".join(ex))
+        elif self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()) != 'Thread':
+            for i in range(self.parent.ui.tabs.count()):
+                if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
+                    self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.parent.ui.tabs.tabText(i), self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text()), self.encoding))
+        if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/nickserv identify'):
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.setPlainText('{0}\n{1}: {2} [password] ({3})'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.toPlainText(), self.nickname, ' '.join(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[:2]), datetime.datetime.now().strftime("%H:%M:%S")))
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/nick'):
             try:
-                msg_list = self.parent.ui.message_text.text().split(' ')
+                msg_list = self.parent.child_widget.message_text.text().split(' ')
                 nick = msg_list[1]
                 self.socket.send(bytes('NICK {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('NICK\r\n', self.encoding))
-        else:
-            self.parent.ui.chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(self.parent.ui.chat_text.toPlainText(), self.nickname, self.parent.ui.message_text.text(), datetime.datetime.now().strftime("%H:%M:%S")))
-        self.parent.ui.message_text.setText('')
-        self.parent.ui.chat_text.moveCursor(QTextCursor.End)
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != '' and self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != ' ':
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.setPlainText('{0}\n{1}: {2} ({3})'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.toPlainText(), self.nickname, self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text(), datetime.datetime.now().strftime("%H:%M:%S")))
+        self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.setText('')
+        self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.moveCursor(QTextCursor.End)
+
+    def chanjoined(self):
+        tabs_count = self.parent.ui.tabs.count() - 1
+        self.parent.ui.tabs.setCurrentIndex(tabs_count)
+        self.timer.stop()
 
     def edit_item(self):
         swiz003 = SettingsWizard003()
@@ -1040,7 +1222,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['encoding'])
             self.timer.start()
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
         translator.translate_003(self, swiz003.ui, settings['Main']['Language'], en_US, ru_RU)
         swiz003.exec_()
 
@@ -1050,7 +1234,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
-            print(e)
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+            print("\n".join(ex))
         self.ui.tableWidget.removeRow(self.ui.tableWidget.currentRow())
         if self.ui.tableWidget.rowCount() == 0:
             self.ui.tableWidget.itemDoubleClicked.connect(self.edit_item)
@@ -1107,6 +1293,33 @@ class AdvancedSettingsDlg(QtWidgets.QDialog, ext_sett):
         settings.read('settings')
         if settings.sections() != []:
             self.ui.language_combo.setCurrentText(settings['Main']['Language'])
+
+class MentionNotificationWindow(QtWidgets.QDialog, mention_notif_window):
+    def __init__(self, parent=None):
+        super(MentionNotificationWindow, self).__init__(parent)
+        self.parent = parent
+        self.ui = mention_notif_window()
+        self.ui.setupUi(self)
+        self.ui.label_2.installEventFilter(self)
+        self.ui.openclient_btn.clicked.connect(self.open_client)
+        try:
+            print('Test')
+        except:
+            pass
+    def close_notification(self):
+        self.hide()
+        self.parent.hide()
+        self.close()
+
+    def open_client(self):
+        self.hide()
+        self.close()
+        self.parent.setWindowState(Qt.WindowActive)
+
+    def eventFilter(self, obj, e):
+        if e.type() == 2:
+            self.close_notification()
+        return super(MentionNotificationWindow,self).eventFilter(obj,e)
 
 app = QtWidgets.QApplication([])
 app.setStyle('Fusion')

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(408, 382)
+        Dialog.resize(408, 331)
         Dialog.setMinimumSize(QtCore.QSize(408, 300))
         Dialog.setMaximumSize(QtCore.QSize(624, 404))
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
@@ -23,12 +23,13 @@ class Ui_Dialog(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.icon = QtWidgets.QGraphicsView(Dialog)
-        self.icon.setMinimumSize(QtCore.QSize(0, 60))
-        self.icon.setMaximumSize(QtCore.QSize(16777215, 60))
-        self.icon.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.icon.setObjectName("icon")
-        self.verticalLayout_2.addWidget(self.icon)
+        self.icon_label = QtWidgets.QLabel(Dialog)
+        self.icon_label.setMinimumSize(QtCore.QSize(0, 80))
+        self.icon_label.setMaximumSize(QtCore.QSize(16777215, 140))
+        self.icon_label.setStyleSheet("image: url(:/icons/icon_64_64.png);")
+        self.icon_label.setText("")
+        self.icon_label.setObjectName("icon_label")
+        self.verticalLayout_2.addWidget(self.icon_label)
         self.progname = QtWidgets.QLabel(Dialog)
         self.progname.setMinimumSize(QtCore.QSize(0, 28))
         self.progname.setMaximumSize(QtCore.QSize(16777215, 28))
@@ -93,3 +94,4 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "<html><head/><body><p>Это свободное программное обеспечение с открытым исходным кодом, распространяемое в соответствии с условиями <a href=\"https://www.gnu.org/licenses/gnu-3.0.ru.html\"><span style=\" text-decoration: underline; color:#1d99f3;\">GNU General Public License 3.0 (прочитать лицензию)</span></a><span style=\" font-weight:600;\"/>.<br><br>БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ВКЛЮЧАЯ КОММЕРЧЕСКУЮ ЦЕННОСТЬ.</body></html>"))
         self.label_2.setText(_translate("Dialog", "© 2021 Dmitry Tretyakov (aka. Tinelix)"))
         self.repo_btn.setText(_translate("Dialog", "Репозиторий"))
+import resources_rc

@@ -8,4 +8,7 @@
     <file>icon_48x48.png</file>
     <file>icon_64_64.png</file>
   </qresource>
+  <qresource prefix="button_icons">
+    <file>closebutton.png</file>
+  </qresource>
 </RCC>

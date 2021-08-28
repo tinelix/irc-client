@@ -54,6 +54,8 @@ def get():
         'darkthcb': 'Dark theme',
         'msghstcb': 'Save messages history',
         'msgshtcb': 'Hints when entering text',
+        'mentionl': '{0} mentioned you',
+        'opclient': 'Open',
         'about_tt': 'About Tinelix IRC Client',
         'prog_ver': '<html><head/><body><p><span style=" font-weight:600;">Tinelix IRC Client </span><span style=" font-size:8pt;">(codename Flight, {0})</span></p></body></html>',
         'free_sft': 'Written on Python, using Qt {0} with PyQt5 {1}',

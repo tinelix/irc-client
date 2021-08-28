@@ -50,89 +50,16 @@ color: rgb(255, 255, 255);</string>
        <number>0</number>
       </property>
       <item>
-       <widget class="QListView" name="dialogs_list">
-        <property name="minimumSize">
-         <size>
-          <width>128</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>112</width>
-          <height>16777215</height>
-         </size>
-        </property>
+       <widget class="QTabWidget" name="tabs">
         <property name="styleSheet">
-         <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
+         <string notr="true"/>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="chat_text">
-        <property name="font">
-         <font>
-          <family>Consolas</family>
-          <pointsize>10</pointsize>
-         </font>
+        <property name="currentIndex">
+         <number>-1</number>
         </property>
-        <property name="styleSheet">
-         <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
-        </property>
-        <property name="undoRedoEnabled">
+        <property name="tabsClosable">
          <bool>false</bool>
         </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTreeWidget" name="members_list">
-        <property name="minimumSize">
-         <size>
-          <width>144</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>144</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::SelectedClicked</set>
-        </property>
-        <property name="indentation">
-         <number>10</number>
-        </property>
-        <property name="rootIsDecorated">
-         <bool>false</bool>
-        </property>
-        <property name="animated">
-         <bool>false</bool>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="expandsOnDoubleClick">
-         <bool>true</bool>
-        </property>
-        <attribute name="headerVisible">
-         <bool>false</bool>
-        </attribute>
-        <column>
-         <property name="text">
-          <string>Members</string>
-         </property>
-        </column>
        </widget>
       </item>
      </layout>
@@ -156,33 +83,6 @@ color: rgb(255, 255, 255);</string>
         <property name="topMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QLineEdit" name="message_text">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">selection-background-color: rgb(161, 75, 0);
-color: rgb(79, 79, 79);</string>
-          </property>
-          <property name="text">
-           <string>На данный момент отправить сообщение нельзя</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="send_msg_btn">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f</string>
-          </property>
-          <property name="text">
-           <string>Отправить</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
@@ -355,7 +255,7 @@ color: rgb(79, 79, 79);</string>
      <x>0</x>
      <y>0</y>
      <width>595</width>
-     <height>29</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="styleSheet">
