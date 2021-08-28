@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.0 Beta'
+version = '0.4.1 Beta'
 date = '2021-08-28'
 
 init_required = 1
