@@ -54,7 +54,7 @@ def get():
         'darkthcb': 'Темная тема',
         'msghstcb': 'Сохранять историю сообщений',
         'msgshtcb': 'Подсказки при вводе текста',
-        'mentionl': '{0} упоминул вас',
+        'mentionl': '{0} упоминул(a) вас',
         'opclient': 'Открыть',
         'about_tt': 'О клиенте Tinelix IRC',
         'prog_ver': '<html><head/><body><p><span style=" font-weight:600;">Tinelix IRC Client </span><span style=" font-size:8pt;">(codename Flight, {0})</span></p></body></html>',
