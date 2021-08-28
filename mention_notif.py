@@ -42,6 +42,7 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.msg_text = QtWidgets.QLabel(Dialog)
         self.msg_text.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.msg_text.setWordWrap(True)
         self.msg_text.setObjectName("msg_text")
         self.verticalLayout.addWidget(self.msg_text)
         self.openclient_btn = QtWidgets.QPushButton(Dialog)
