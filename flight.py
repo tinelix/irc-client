@@ -899,7 +899,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                     mention_notif.setStyleSheet('border-radius: 2px; opacity: 100;')
                                     screen = app.primaryScreen()
                                     size = screen.size()
-                                    mention_notif.setGeometry(size.width() - 320, size.height() - 180, 313, 128)
+                                    mention_notif.setGeometry(size.width() - 400, size.height() - 180, 313, 128)
                                     if settings['Main']['Language'] == 'English':
                                         mention_notif.ui.nickname_label.setText(en_US.get()['mentionl'].format(decoded_text[0]))
                                         mention_notif.ui.openclient_btn.setText(en_US.get()['opclient'])
