@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.2 Hotfixes'
+version = '0.4.3 Beta'
 date = '2021-08-29'
 
 init_required = 1
@@ -85,7 +85,10 @@ class Thread(QThread):
                     print('Connecting to {0}...'.format(self.server))
                     self.socket.setblocking(True)
                     try:
-                        self.socket.send(bytes("USER " + self.username + " " + self.hostname + " " + self.username + " :" + self.realname + "\n", self.encoding))
+                        if self.hostname == None and self.realname == None and self.hostname == '' and self.realname == '':
+                            self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
+                        else:
+                            self.socket.send(bytes("USER " + self.username + " " + self.hostname + " " + self.username + " :" + self.realname + "\n", self.encoding))
                     except:
                         self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
                     self.socket.send(bytes("NICK " + self.username + "\n", self.encoding))
