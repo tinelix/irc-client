@@ -74,7 +74,8 @@ class Thread(QThread):
                     self.realname = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['realname']
                     self.hostname = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['hostname']
                 except:
-                    pass
+                    self.realname = self.username
+                    self.hostname = self.hostname
                 fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
                 self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)
                 try:
@@ -85,7 +86,7 @@ class Thread(QThread):
                     print('Connecting to {0}...'.format(self.server))
                     self.socket.setblocking(True)
                     try:
-                        if self.hostname == None and self.realname == None and self.hostname == '' and self.realname == '':
+                        if self.hostname == None or self.realname == None or self.hostname == '' or self.realname == '':
                             self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
                         else:
                             self.socket.send(bytes("USER " + self.username + " " + self.hostname + " " + self.username + " :" + self.realname + "\n", self.encoding))
