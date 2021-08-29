@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(405, 222)
+        Dialog.resize(461, 222)
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
 "color: rgb(255, 255, 255);")
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
@@ -48,7 +48,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.dark_theme_cb = QtWidgets.QCheckBox(Dialog)
         self.dark_theme_cb.setEnabled(True)
-        self.dark_theme_cb.setMinimumSize(QtCore.QSize(110, 21))
+        self.dark_theme_cb.setMinimumSize(QtCore.QSize(220, 21))
         self.dark_theme_cb.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(255, 119, 0);")
         self.dark_theme_cb.setChecked(True)
