@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>302</height>
+    <height>337</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -191,11 +191,8 @@ color: rgb(255, 255, 255);</string>
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_4">
-         <property name="horizontalSpacing">
+         <property name="spacing">
           <number>6</number>
-         </property>
-         <property name="verticalSpacing">
-          <number>0</number>
          </property>
          <item row="1" column="0">
           <widget class="QLabel" name="password_label">
@@ -230,6 +227,21 @@ border-color: rgb(255, 119, 0);</string>
            </property>
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="realname_label">
+           <property name="text">
+            <string>Настоящее имя:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="realname_box">
+           <property name="styleSheet">
+            <string notr="true">selection-background-color: rgb(161, 75, 0);
+border-color: rgb(255, 119, 0);</string>
            </property>
           </widget>
          </item>
@@ -364,6 +376,16 @@ border-color: rgb(255, 119, 0);</string>
            </property>
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="hostname_box"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="hostname_label">
+           <property name="text">
+            <string>Имя хоста:</string>
            </property>
           </widget>
          </item>

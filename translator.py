@@ -66,6 +66,8 @@ def translate_003(mainclass, form, language, en_US, ru_RU):
             form.authm_label.setText(ru_RU.get()['authmeth'])
             form.nicknames_label.setText(ru_RU.get()['nicklist'])
             form.password_label.setText(ru_RU.get()['password'])
+            form.realname_label.setText(ru_RU.get()['realname'])
+            form.hostname_label.setText(ru_RU.get()['hostname'])
             form.server_label.setText(ru_RU.get()['server'])
             form.port_label.setText(ru_RU.get()['port'])
             form.encoding_label.setText(ru_RU.get()['encoding'])
@@ -81,6 +83,8 @@ def translate_003(mainclass, form, language, en_US, ru_RU):
             form.authm_label.setText(en_US.get()['authmeth'])
             form.nicknames_label.setText(en_US.get()['nicklist'])
             form.password_label.setText(en_US.get()['password'])
+            form.realname_label.setText(en_US.get()['realname'])
+            form.hostname_label.setText(en_US.get()['hostname'])
             form.server_label.setText(en_US.get()['server'])
             form.port_label.setText(en_US.get()['port'])
             form.encoding_label.setText(en_US.get()['encoding'])
@@ -116,6 +120,10 @@ def translate_005(mainclass, form, language, en_US, ru_RU):
             form.dark_theme_cb.setText(ru_RU.get()['darkthcb'])
             form.save_msghistory_cb.setText(ru_RU.get()['msghstcb'])
             form.msgs_hint.setText(ru_RU.get()['msgshtcb'])
+            form.msgs_hint.setText(ru_RU.get()['msgshtcb'])
+            form.msgs_hint.setText(ru_RU.get()['msgshtcb'])
+            form.backlight_cb.setText(ru_RU.get()['msgbclcb'])
+            form.font_label.setText(ru_RU.get()['msg_font'])
         except Exception as e:
             print(e)
     elif language == 'English':
@@ -125,6 +133,8 @@ def translate_005(mainclass, form, language, en_US, ru_RU):
             form.dark_theme_cb.setText(en_US.get()['darkthcb'])
             form.save_msghistory_cb.setText(en_US.get()['msghstcb'])
             form.msgs_hint.setText(en_US.get()['msgshtcb'])
+            form.backlight_cb.setText(en_US.get()['msgbclcb'])
+            form.font_label.setText(en_US.get()['msg_font'])
         except Exception as e:
             print(e)
 

@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(408, 331)
-        Dialog.setMinimumSize(QtCore.QSize(408, 300))
+        Dialog.resize(408, 332)
+        Dialog.setMinimumSize(QtCore.QSize(408, 332))
         Dialog.setMaximumSize(QtCore.QSize(624, 404))
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
 "color: rgb(255, 255, 255);")
@@ -25,7 +25,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.icon_label = QtWidgets.QLabel(Dialog)
         self.icon_label.setMinimumSize(QtCore.QSize(0, 80))
-        self.icon_label.setMaximumSize(QtCore.QSize(16777215, 140))
+        self.icon_label.setMaximumSize(QtCore.QSize(16777215, 80))
         self.icon_label.setStyleSheet("image: url(:/icons/icon_64_64.png);")
         self.icon_label.setText("")
         self.icon_label.setObjectName("icon_label")
@@ -64,6 +64,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.addWidget(self.label)
         self.verticalLayout.addLayout(self.verticalLayout_2)
         self.label_2 = QtWidgets.QLabel(Dialog)
+        self.label_2.setMaximumSize(QtCore.QSize(16777215, 14))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_2.setFont(font)

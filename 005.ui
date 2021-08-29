@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>184</height>
+    <width>461</width>
+    <height>222</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,7 +64,7 @@ selection-background-color: rgb(161, 75, 0);</string>
       <widget class="QLabel" name="language_label">
        <property name="minimumSize">
         <size>
-         <width>100</width>
+         <width>128</width>
          <height>30</height>
         </size>
        </property>
@@ -93,7 +93,7 @@ selection-background-color: rgb(161, 75, 0);</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>110</width>
+         <width>220</width>
          <height>21</height>
         </size>
        </property>
@@ -132,7 +132,7 @@ selection-background-color: rgb(255, 119, 0);</string>
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="msgs_hint">
        <property name="enabled">
@@ -140,7 +140,7 @@ selection-background-color: rgb(255, 119, 0);</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>220</width>
          <height>21</height>
         </size>
        </property>
@@ -150,6 +150,70 @@ selection-background-color: rgb(255, 119, 0);</string>
        </property>
        <property name="text">
         <string>Подсказки при вводе текста</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="backlight_cb">
+       <property name="text">
+        <string>Подсветка сообщений</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QLabel" name="font_label">
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Шрифт сообщений:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QFontComboBox" name="msgfont_combo">
+       <property name="styleSheet">
+        <string notr="true">border-color: rgb(255, 119, 0);
+selection-background-color: rgb(161, 75, 0);</string>
+       </property>
+       <property name="fontFilters">
+        <set>QFontComboBox::AllFonts</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QSpinBox" name="font_size_sb">
+       <property name="minimumSize">
+        <size>
+         <width>52</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border-color: rgb(255, 119, 0);
+selection-background-color: rgb(161, 75, 0);</string>
+       </property>
+       <property name="minimum">
+        <number>6</number>
+       </property>
+       <property name="maximum">
+        <number>48</number>
+       </property>
+       <property name="value">
+        <number>10</number>
        </property>
       </widget>
      </item>

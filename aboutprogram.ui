@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>331</height>
+    <height>332</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>408</width>
-    <height>300</height>
+    <height>332</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -43,7 +43,7 @@ color: rgb(255, 255, 255);</string>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>140</height>
+         <height>80</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -144,6 +144,12 @@ color: rgb(255, 255, 255);</string>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>14</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <pointsize>8</pointsize>
