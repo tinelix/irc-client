@@ -137,10 +137,13 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         print('Tinelix codename Flight {0} ({1})\nDone!'.format(version, date))
         self.ui.tabs.addTab(self.child_widget, 'Thread')
         self.child_widget.members_list.setVisible(False)
-        font = QFont(settings['Main']['MsgFont'].split(', ')[0])
-        font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
-        for i in range(self.ui.tabs.count()):
+        try:
+            font = QFont(settings['Main']['MsgFont'].split(', ')[0])
+            font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+            for i in range(self.ui.tabs.count()):
                 self.ui.tabs.widget(i).chat_text.setFont(font)
+        except:
+            pass
 
         if settings.sections() == []:
             settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'False', 'MsgFont': 'Consolas'}
@@ -1106,11 +1109,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     if not os.path.exists('history'):
                         os.makedirs('history')
                         for i in range(self.parent.ui.tabs.count()):
-                            with open('history/irc_{0}_{1}_{2}.txt'.format(self.parent.ui.tabs.tabText(i), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+                            with open('history/irc_{0}_{1}_{2}.html'.format(self.parent.ui.tabs.tabText(i), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
                                 f.write(self.parent.child_widget.chat_text.toHtml())
                     else:
                         for i in range(self.parent.ui.tabs.count()):
-                            with open('history/irc_{0}_{1}_{2}.txt'.format(self.parent.ui.tabs.tabText(i), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
+                            with open('history/irc_{0}_{1}_{2}.html'.format(self.parent.ui.tabs.tabText(i), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
                                 f.write(self.parent.child_widget.chat_text.toHtml())
             except:
                 pass
