@@ -977,7 +977,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                     try:
                                         if settings['Main']['Language'] == 'English':
                                             mention_notif.ui.nickname_label.setText(en_US.get()['mentionl'].format(decoded_text[0]))
-                                        mention_notif.ui.openclient_btn.setText(en_US.get()['opclient'])
+                                            mention_notif.ui.openclient_btn.setText(en_US.get()['opclient'])
                                         else:
                                             mention_notif.ui.nickname_label.setText(ru_RU.get()['mentionl'].format(decoded_text[0]))
                                         mention_notif.ui.openclient_btn.setText(ru_RU.get()['opclient'])
