@@ -1248,7 +1248,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/'):
             try:
                 msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
-                self.socket.send(bytes('{0}\r\n'.format(''.join(self.parent.child_widget.message_text.text()[1:])), self.encoding))
+                self.socket.send(bytes('{0}\r\n'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text()[1:])), self.encoding))
             except Exception as e:
                 exc_type, exc_value, exc_tb = sys.exc_info()
                 ex = traceback.format_exception(exc_type, exc_value, exc_tb)
