@@ -92,16 +92,17 @@ class Thread(QThread):
                         pass
                     tracemalloc.start()
                     snapshot = tracemalloc.take_snapshot()
-                    self.socket.connect((self.server,self.port)) # trying to connect to a server without SSL
+                    self.socket.connect((self.server,self.port))
                     print('Connecting to {0}...'.format(self.server))
                     self.socket.setblocking(True)
                     try:
                         snapshot_2 = tracemalloc.take_snapshot()
                         top_stats = snapshot_2.compare_to(snapshot, 'lineno')
-                        for stat in top_stats[:10]:
+                        for stat in top_stats[:10]: # continuing from third stat a memory leak,
+                            # but no more than 3 or 10 stats are displayed in the console after that. it's strange!
                             print(stat)
                         if self.hostname == None or self.realname == None or self.hostname == '' or self.realname == '':
-                            print('USER Connecting...')
+                            print('USER Connecting...') # code is no longer exected along with the GUI
                             self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
                             print('USER Done...')
                         else:
@@ -125,7 +126,6 @@ class Thread(QThread):
                             elif msg_line.startswith('ERROR'):
                                 print(msg_line)
                                 self.socket.close()
-                                self.stop()
                                 tracemalloc.stop()
 
                 except Exception as e:
@@ -136,7 +136,6 @@ class Thread(QThread):
                         print("\n".join(ex))
                     self.socket.close()
                     tracemalloc.stop()
-                    
 
     def stop(self):
         self.socket.close()
@@ -173,7 +172,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             pass
 
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'False', 'MsgFont': 'Consolas'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'False', 'MsgFont': 'Consolas, 10'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
         else:
@@ -1111,7 +1110,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                     else:
                                         tab.chat_text.setHtml('{0}<b>{1}</b> joined on the channel {2}. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                 except:
-                                    pass
+                                    exc_type, exc_value, exc_tb = sys.exc_info()
+                                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                                    print("\n".join(ex))
                                 tab.chat_text.moveCursor(QTextCursor.End)
                                 self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         try:
@@ -1120,9 +1121,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             else:
                                 self.parent.ui.status_label.setText(ru_RU.get()['chstatus'].format(''.join(decoded_text[3].splitlines()[0])))
                         except:
-                            pass
+                            exc_type, exc_value, exc_tb = sys.exc_info()
+                            ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                            print("\n".join(ex))
                 except:
-                    pass
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
             elif msg_line.find('PART') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
@@ -1263,14 +1268,14 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
     def send_msg(self):
         if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join '):
             msg_list = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')
+            if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join #'):
+                self.socket.send(bytes('JOIN {0}\r\n'.format(msg_list[1]), self.encoding))
+                self.channel = msg_list[1]
+            else:
+                self.socket.send(bytes('JOIN #{0}\r\n'.format(msg_list[1]), self.encoding))
+                self.channel = '#{0}'.format(msg_list[1])
+            self.tab = ChatWidget()
             try:
-                if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join #'):
-                    self.socket.send(bytes('JOIN {0}\r\n'.format(msg_list[1]), self.encoding))
-                    self.channel = msg_list[1]
-                else:
-                    self.socket.send(bytes('JOIN #{0}\r\n'.format(msg_list[1]), self.encoding))
-                    self.channel = '#{0}'.format(msg_list[1])
-                self.tab = ChatWidget()
                 settings.read('settings')
 
                 if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
