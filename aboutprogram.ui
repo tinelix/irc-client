@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>332</height>
+    <height>352</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>408</width>
-    <height>332</height>
+    <height>352</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -143,7 +143,17 @@ color: rgb(255, 255, 255);</string>
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="copyright_label">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -162,16 +172,6 @@ color: rgb(255, 255, 255);</string>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="repo_btn">
-       <property name="styleSheet">
-        <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
-       </property>
-       <property name="text">
-        <string>Репозиторий</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="styleSheet">
@@ -179,6 +179,16 @@ color: rgb(255, 255, 255);</string>
        </property>
        <property name="standardButtons">
         <set>QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="repo_btn">
+       <property name="styleSheet">
+        <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
+       </property>
+       <property name="text">
+        <string>Репозиторий</string>
        </property>
       </widget>
      </item>

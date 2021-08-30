@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '004.ui'
+# Form implementation generated from reading ui file 'aboutprogram.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(408, 382)
-        Dialog.setMinimumSize(QtCore.QSize(408, 300))
+        Dialog.resize(408, 352)
+        Dialog.setMinimumSize(QtCore.QSize(408, 352))
         Dialog.setMaximumSize(QtCore.QSize(624, 404))
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
 "color: rgb(255, 255, 255);")
@@ -23,11 +23,13 @@ class Ui_Dialog(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.icon = QtWidgets.QGraphicsView(Dialog)
-        self.icon.setMaximumSize(QtCore.QSize(16777215, 60))
-        self.icon.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.icon.setObjectName("icon")
-        self.verticalLayout_2.addWidget(self.icon)
+        self.icon_label = QtWidgets.QLabel(Dialog)
+        self.icon_label.setMinimumSize(QtCore.QSize(0, 80))
+        self.icon_label.setMaximumSize(QtCore.QSize(16777215, 80))
+        self.icon_label.setStyleSheet("image: url(:/icons/icon_64_64.png);")
+        self.icon_label.setText("")
+        self.icon_label.setObjectName("icon_label")
+        self.verticalLayout_2.addWidget(self.icon_label)
         self.progname = QtWidgets.QLabel(Dialog)
         self.progname.setMinimumSize(QtCore.QSize(0, 28))
         self.progname.setMaximumSize(QtCore.QSize(16777215, 28))
@@ -61,23 +63,29 @@ class Ui_Dialog(object):
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label)
         self.verticalLayout.addLayout(self.verticalLayout_2)
-        self.label_2 = QtWidgets.QLabel(Dialog)
+        self.frame = QtWidgets.QFrame(Dialog)
+        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.verticalLayout.addWidget(self.frame)
+        self.copyright_label = QtWidgets.QLabel(Dialog)
+        self.copyright_label.setMaximumSize(QtCore.QSize(16777215, 14))
         font = QtGui.QFont()
         font.setPointSize(8)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout.addWidget(self.label_2)
+        self.copyright_label.setFont(font)
+        self.copyright_label.setObjectName("copyright_label")
+        self.verticalLayout.addWidget(self.copyright_label)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.repo_btn = QtWidgets.QPushButton(Dialog)
-        self.repo_btn.setStyleSheet("selection-background-color: rgb(255, 119, 0);")
-        self.repo_btn.setObjectName("repo_btn")
-        self.gridLayout.addWidget(self.repo_btn, 0, 0, 1, 1)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setStyleSheet("selection-background-color: rgb(255, 119, 0);")
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.gridLayout.addWidget(self.buttonBox, 0, 1, 1, 1)
+        self.repo_btn = QtWidgets.QPushButton(Dialog)
+        self.repo_btn.setStyleSheet("selection-background-color: rgb(255, 119, 0);")
+        self.repo_btn.setObjectName("repo_btn")
+        self.gridLayout.addWidget(self.repo_btn, 0, 0, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
 
         self.retranslateUi(Dialog)
@@ -87,8 +95,9 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "О клиенте Tinelix IRC"))
-        self.progname.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-weight:600;\">Tinelix IRC Client </span><span style=\" font-size:8pt;\">(codename Flight, 0.0.1 Alpha)</span></p></body></html>"))
+        self.progname.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-weight:600;\">Tinelix IRC Client </span><span style=\" font-size:8pt;\">(codename Flight)</span></p></body></html>"))
         self.description_label.setText(_translate("Dialog", "(description)"))
         self.label.setText(_translate("Dialog", "<html><head/><body><p>Это свободное программное обеспечение с открытым исходным кодом, распространяемое в соответствии с условиями <a href=\"https://www.gnu.org/licenses/gnu-3.0.ru.html\"><span style=\" text-decoration: underline; color:#1d99f3;\">GNU General Public License 3.0 (прочитать лицензию)</span></a><span style=\" font-weight:600;\"/>.<br><br>БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ВКЛЮЧАЯ КОММЕРЧЕСКУЮ ЦЕННОСТЬ.</body></html>"))
-        self.label_2.setText(_translate("Dialog", "© 2021 Dmitry Tretyakov (aka. Tinelix)"))
+        self.copyright_label.setText(_translate("Dialog", "© 2021 Dmitry Tretyakov (aka. Tinelix)"))
         self.repo_btn.setText(_translate("Dialog", "Репозиторий"))
+import resources_rc

@@ -29,6 +29,7 @@ def get():
         'server': 'Server:',
         'port': 'Port:',
         'encoding': 'Encoding:',
+        'only_ssl': 'Only SSL/TLS',
         'quit_msg': 'Quit message:',
         'filemenu': 'File',
         'viewmenu': 'View',

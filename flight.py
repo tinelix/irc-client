@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.5 Beta'
+version = '0.4.6 Beta'
 date = '2021-08-30'
 
 init_required = 1
@@ -97,13 +97,10 @@ class Thread(QThread):
                     try:
                         snapshot_2 = tracemalloc.take_snapshot()
                         top_stats = snapshot_2.compare_to(snapshot, 'lineno')
-                        for stat in top_stats[:10]: # continuing from third stat a memory leak,
-                            # but no more than 3 or 10 stats are displayed in the console after that. it's strange!
+                        for stat in top_stats[:10]:
                             print(stat)
                         if self.hostname == None or self.realname == None or self.hostname == '' or self.realname == '':
-                            print('USER Connecting...') # code is no longer exected along with the GUI
                             self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
-                            print('USER Done...')
                         else:
                             self.socket.send(bytes("USER " + self.username + " " + self.hostname + " " + self.username + " :" + self.realname + "\n", self.encoding))
                     except:
@@ -733,6 +730,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.timer.timeout.connect(self.tick)
         self.timer.start(100)
         self.sections_count = None
+        self.members = []
+        self.operators = []
+        self.owners = []
         try:
             if settings['Main']['DarkTheme'] == 'Disabled':
                 self.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
@@ -827,6 +827,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     settings.read('settings')
                     if settings.sections() != [] and settings['Main']['Language'] == 'English':
                         self.signin_item = self.contextMenu.addAction(en_US.get()['nicksv_a'], self.command_choosed)
+                        self.chanlist_item = self.contextMenu.addAction(en_US.get()['list_act'], self.command_choosed)
                         self.joinch_item = self.contextMenu.addAction(en_US.get()['joinch_a'], self.command_choosed)
                         self.names_item = self.contextMenu.addAction(en_US.get()['namesact'], self.command_choosed)
                         self.whois_item = self.contextMenu.addAction(en_US.get()['whois_a'], self.command_choosed)
@@ -835,6 +836,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.hidemenu_item = self.contextMenu.addAction(en_US.get()['hidemn_a'])
                     else:
                         self.signin_item = self.contextMenu.addAction(ru_RU.get()['nicksv_a'], self.command_choosed)
+                        self.chanlist_item = self.contextMenu.addAction(ru_RU.get()['list_act'], self.command_choosed)
                         self.joinch_item = self.contextMenu.addAction(ru_RU.get()['joinch_a'], self.command_choosed)
                         self.names_item = self.contextMenu.addAction(ru_RU.get()['namesact'], self.command_choosed)
                         self.whois_item = self.contextMenu.addAction(ru_RU.get()['whois_a'], self.command_choosed)
@@ -842,7 +844,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.quit_item = self.contextMenu.addAction(ru_RU.get()['quit_act'], self.command_choosed)
                         self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
                     try:
-                        commands = self.contextMenu.popup(self.parent.child_widget.message_text.mapToGlobal(QPoint(0, -176)))
+                        commands = self.contextMenu.popup(self.parent.child_widget.message_text.mapToGlobal(QPoint(0, -200)))
                     except Exception as e:
                         exc_type, exc_value, exc_tb = sys.exc_info()
                         ex = traceback.format_exception(exc_type, exc_value, exc_tb)
@@ -877,6 +879,8 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         command = self.sender()
         if command == self.signin_item:
             self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.setText('/nickserv')
+        elif command == self.chanlist_item:
+            self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.setText('/list')
         elif command == self.joinch_item:
             self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.setText('/join #')
         elif command == self.names_item:
@@ -920,9 +924,6 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.port = port
         self.nickname = nickname
         self.quiting_msg = quiting_msg
-        self.members = []
-        self.operators = []
-        self.owners = []
         self.parent.setWindowTitle('Tinelix IRC Client | {0}'.format(self.server))
         settings.read('settings')
         text = '{}'.format(status)
@@ -975,13 +976,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 decoded_text = status.split(' ')
                 try:
                     if settings['Main']['Language'] == 'English':
-                        owners_list = QTreeWidgetItem([en_US.get()['owners']])
-                        operators_list = QTreeWidgetItem([en_US.get()['oprtors']])
-                        members_list = QTreeWidgetItem([en_US.get()['members']])
+                        owners_list = QTreeWidgetItem(['{0} ({1})'.format(en_US.get()['owners'], len(self.owners))])
+                        operators_list = QTreeWidgetItem(['{0} ({1})'.format(en_US.get()['oprtors'], len(self.operators))])
+                        members_list = QTreeWidgetItem(['{0} ({1})'.format(en_US.get()['members'], len(self.members))])
                     else:
-                        owners_list = QTreeWidgetItem([ru_RU.get()['owners']])
-                        operators_list = QTreeWidgetItem([ru_RU.get()['oprtors']])
-                        members_list = QTreeWidgetItem([ru_RU.get()['members']])
+                        owners_list = QTreeWidgetItem(['{0} ({1})'.format(ru_RU.get()['owners'], len(self.owners))])
+                        operators_list = QTreeWidgetItem(['{0} ({1})'.format(ru_RU.get()['oprtors'], len(self.operators))])
+                        members_list = QTreeWidgetItem(['{0} ({1})'.format(ru_RU.get()['members'], len(self.members))])
                     for operator in self.operators:
                         if operator != '':
                             child = QTreeWidgetItem([operator])
@@ -1002,8 +1003,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     operators_list.setExpanded(True)
                     members_list.setExpanded(True)
                     owners_list.setExpanded(True)
-                except:
-                    pass
+                    self.members = []
+                    self.operators = []
+                    self.owners = []
+                except Exception as e:
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
             elif msg_line.startswith('{0} {1}'.format(self.server, 366)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 372)):
@@ -1431,7 +1437,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('NICK {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 self.socket.send(bytes('NICK\r\n', self.encoding))
-        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != '' and self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != ' ':
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != '' and self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() != ' ' and self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.isEnabled() == True:
             if settings['Main']['MsgBacklight'] == 'Disabled':
                 self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.setHtml('{0}\n{1}: {2} ({3})'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.toHtml(), self.nickname, self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text(), datetime.datetime.now().strftime("%H:%M:%S")))
             else:
