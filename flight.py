@@ -175,7 +175,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             pass
 
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'True', 'MsgFont': 'Consolas, 10'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'Enabled', 'MsgFont': 'Consolas, 10'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
         else:
