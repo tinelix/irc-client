@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.4 Beta'
+version = '0.4.5 Beta'
 date = '2021-08-30'
 
 init_required = 1
@@ -1142,13 +1142,21 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         for i in range(self.parent.ui.tabs.count()):
                             if self.parent.ui.tabs.tabText(i) == decoded_text[3].splitlines()[0]:
                                 tab = self.parent.ui.tabs.widget(i)
+                                reason = []
                                 try:
-                                    if settings['Main']['MsgBacklight'] == 'Disabled':
-                                        tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                    for word in msg_line.split(' '):
+                                        if msg_line.split(' ').index(word) > 2 and word != '':
+                                            reason.append(word.splitlines()[0])
+                                    if settings['Main']['MsgBacklight'] == 'Disabled' and reason != []:
+                                        tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                    elif settings['Main']['MsgBacklight'] == 'Enabled' and reason != []:
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> left the {2} channel with reason: <i>{3}</i>. <span style="font-size: 10px">({4})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                    elif settings['Main']['MsgBacklight'] == 'Enabled':
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> left the {2} channel. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], datetime.datetime.now().strftime("%H:%M:%S")))
                                     else:
-                                        tab.chat_text.setHtml('{0}<br><b>{1}</b> left the {2} channel with reason: <i>{3}</i>. <span style="font-size: 10px">({4})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                                except:
-                                    tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}\n{1} left the {2} channel. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], datetime.datetime.now().strftime("%H:%M:%S")))
+                                except Exception as e:
+                                    tab.chat_text.setHtml('{0}\n{1} left the {2} channel. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], datetime.datetime.now().strftime("%H:%M:%S")))
                                 tab.chat_text.moveCursor(QTextCursor.End)
                                 self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         try:
@@ -1172,13 +1180,24 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         for i in range(self.parent.ui.tabs.count()):
                             if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
                                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                                reason = []
                                 try:
-                                    if settings['Main']['MsgBacklight'] == 'Disabled':
-                                        tab.chat_text.setHtml('{0}\n{1} quited with reason: {2}. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                    for word in msg_line.split(' '):
+                                        if msg_line.split(' ').index(word) > 4 and word != '':
+                                            reason.append(word.splitlines()[0])
+                                    if settings['Main']['MsgBacklight'] == 'Disabled' and reason != []:
+                                        tab.chat_text.setHtml('{0}\n{1} quited with reason: {2}. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                    elif settings['Main']['MsgBacklight'] == 'Enabled' and reason != []:
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> quited with reason: <i>{2}</i>. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                    elif settings['Main']['MsgBacklight'] == 'Enabled':
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> quited. <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                     else:
-                                        tab.chat_text.setHtml('{0}<b>{1}</b> quited with reason: <i>{2}</i>. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
-                                except:
-                                    tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}\n{1} quited. <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                except Exception as e:
+                                    exc_type, exc_value, exc_tb = sys.exc_info()
+                                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                                    print("\n".join(ex))
+                                    tab.chat_text.setHtml('{0}\n{1} quited. <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                 tab.chat_text.moveCursor(QTextCursor.End)
                                 self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         if settings['Main']['Language'] == 'English':
@@ -1202,7 +1221,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                     else:
                                         tab.chat_text.setHtml('{0}<b>{1}</b> changed nickname to {2}. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                 except:
-                                    tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], " ".join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                    tab.chat_text.setHtml('{0}\n{1} changed nickname to {2}. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                 tab.chat_text.moveCursor(QTextCursor.End)
                         try:
                             if settings['Main']['Language'] == 'English':
