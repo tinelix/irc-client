@@ -126,6 +126,7 @@ class Thread(QThread):
                                 print(msg_line)
                                 self.socket.close()
                                 self.stop()
+                                tracemalloc.stop()
 
                 except Exception as e:
                     exc_type, exc_value, exc_tb = sys.exc_info()
@@ -134,6 +135,8 @@ class Thread(QThread):
                         self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
                         print("\n".join(ex))
                     self.socket.close()
+                    tracemalloc.stop()
+                    
 
     def stop(self):
         self.socket.close()
