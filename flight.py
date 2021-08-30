@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
+from mem_top import mem_top
 from functools import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
@@ -22,8 +23,8 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.3 Beta'
-date = '2021-08-29'
+version = '0.4.4 Beta'
+date = '2021-08-30'
 
 init_required = 1
 
@@ -63,12 +64,14 @@ class Thread(QThread):
     def run(self):
             profiles.read('profiles')
             if profiles.sections() != [] or profiles.sections() != None and (profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['server'] != '' and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['port'] != '') and (profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['nicknames'] != '' and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['nicknames'] != ''):
+                self.ssl = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
                 self.encoding = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Encoding']
                 self.username = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Nicknames'].split(', ')[0]
                 self.server = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Server']
                 self.port = int(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Port'])
                 self.channel = ""
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.settimeout(10)
                 self.quiting_msg = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['quitingmsg']
                 try:
                     self.realname = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['realname']
@@ -82,12 +85,25 @@ class Thread(QThread):
                     self.until_ping = time.time()
                     threshold = 1 * 60
                     self.ping = time.time()
-                    self.socket.connect((self.server,self.port))
+                    try:
+                        if profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['SSL'] == 'Enabled':
+                            self.socket = self.ssl.wrap_socket(self.socket)
+                    except:
+                        pass
+                    tracemalloc.start()
+                    snapshot = tracemalloc.take_snapshot()
+                    self.socket.connect((self.server,self.port)) # trying to connect to a server without SSL
                     print('Connecting to {0}...'.format(self.server))
                     self.socket.setblocking(True)
                     try:
+                        snapshot_2 = tracemalloc.take_snapshot()
+                        top_stats = snapshot_2.compare_to(snapshot, 'lineno')
+                        for stat in top_stats[:10]:
+                            print(stat)
                         if self.hostname == None or self.realname == None or self.hostname == '' or self.realname == '':
+                            print('USER Connecting...')
                             self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
+                            print('USER Done...')
                         else:
                             self.socket.send(bytes("USER " + self.username + " " + self.hostname + " " + self.username + " :" + self.realname + "\n", self.encoding))
                     except:
@@ -104,15 +120,19 @@ class Thread(QThread):
                                 ping_msg = msg_line.split(' ')
                                 self.socket.send(bytes('PONG {0}\r\n'.format(ping_msg[1]), self.encoding))
                                 self.started.emit('PONG', self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
-                            elif msg_line.startswith(':{0} {1}'.format(self.server, '001')):
+                            elif msg_line.startswith(':{0} {1}'.format(self.server, '001')) and profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['AuthMethod'] == 'NickServ':
                                 self.socket.send(bytes("PRIVMSG nickserv identify {0} {1}\r\n".format(self.username, self.password), self.encoding))
+                            elif msg_line.startswith('ERROR'):
+                                print(msg_line)
+                                self.socket.close()
+                                self.stop()
 
                 except Exception as e:
                     exc_type, exc_value, exc_tb = sys.exc_info()
                     ex = traceback.format_exception(exc_type, exc_value, exc_tb)
-                    print("\n".join(ex))
                     if not str(e).startswith('[Errno 9]'):
                         self.started.emit('Exception: {0}'.format(str(e)), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
+                        print("\n".join(ex))
                     self.socket.close()
 
     def stop(self):
@@ -400,6 +420,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.close()
 
     def quit_app(self):
+        try:
+            self.child.thread.stop()
+        except:
+            pass
         self.close()
 
 class SettingsWizard003(QtWidgets.QDialog):
@@ -486,6 +510,14 @@ class SettingsWizard003(QtWidgets.QDialog):
                 profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'RealName': self.ui.realname_box.text(), 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': 'koi8_u', 'QuitingMsg': self.ui.quiting_msg_box.text(), 'HostName': self.ui.hostname_box.text()}
             else:
                 profiles[str(self.ui.profname_box.text())] = {'AuthMethod': self.ui.authmethod_combo.currentText(), 'Nicknames': profiles[str(self.ui.profname_box.text())]['Nicknames'], 'RealName': self.ui.realname_box.text(), 'Server': self.ui.server_box.text(), 'Port': str(self.ui.port_box.value()), 'Password': enc_password.decode('UTF-8'), 'EncryptCode': encrypt_code.decode('UTF-8'), 'Encoding': self.ui.encoding_combo.currentText(), 'QuitingMsg': self.ui.quiting_msg_box.text(), 'HostName': self.ui.hostname_box.text()}
+            if self.ui.requiredssl_cb.checkState() == 0:
+                profiles[str(self.ui.profname_box.text())]['SSL'] = 'Disabled'
+            else:
+                profiles[str(self.ui.profname_box.text())]['SSL'] = 'Enabled'
+            if self.ui.authmethod_combo.currentText() == en_US.get()['w_o_auth'] or self.ui.authmethod_combo.currentText() == ru_RU.get()['w_o_auth']:
+                profiles[str(self.ui.profname_box.text())]['AuthMethod'] = 'Disabled'
+            else:
+                profiles[str(self.ui.profname_box.text())]['AuthMethod'] = self.ui.authmethod_combo.currentText()
             with open('profiles', 'w') as configfile:
                 profiles.write(configfile)
         except Exception as e:
@@ -528,6 +560,7 @@ class SettingsWizard002(QtWidgets.QDialog):
         if self.ui.label.text() == en_US.get()['chprofnm'] or self.ui.label.text() == ru_RU.get()['chprofnm']:
             if profiles.sections() == [] or search(profiles.sections(), self.ui.lineEdit.text()) == False:
                 profiles[str(self.ui.lineEdit.text())] = {'AuthMethod': '', 'Nicknames': '', 'RealName': '', 'Server': '', 'Port': '', 'Encoding': '', 'QuitingMsg': 'Tinelix IRC Client ver. {0} ({1})'.format(version, date), 'HostName': ''}
+                profiles[str(self.ui.lineEdit.text())]['SSL'] = 'Disabled'
                 with open('profiles', 'w') as configfile:
                     profiles.write(configfile)
             swiz003 = SettingsWizard003()
@@ -546,27 +579,42 @@ class SettingsWizard002(QtWidgets.QDialog):
                     swiz003.ui.clear_nicknames_btn.setStyleSheet('color: #4f4f4f')
                 swiz003.ui.realname_box.setText(profiles[str(self.ui.lineEdit.text())]['RealName'])
                 swiz003.ui.hostname_box.setText(profiles[str(self.ui.lineEdit.text())]['HostName'])
+                if profiles[str(self.ui.lineEdit.text())]['SSL'] == 'Enabled':
+                    swiz003.ui.requiredssl_cb.setCheckState(2)
+                else:
+                    swiz003.ui.requiredssl_cb.setCheckState(0)
             except Exception as e:
                 if swiz003.ui.nicknames_combo.count() == 0:
                     swiz003.ui.nicknames_combo.addItem('')
-            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
-                swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
-            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
-                swiz003.ui.nicknames_combo.addItem(en_US.get()['makenick'])
-            if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
-                swiz003.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
-            elif settings.sections() != [] and settings['Main']['DarkTheme'] == 'Enabled':
-                swiz003.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
+            try:
+                if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                    swiz003.ui.nicknames_combo.addItem(ru_RU.get()['makenick'])
+                elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    swiz003.ui.nicknames_combo.addItem(en_US.get()['makenick'])
+                if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
+                    swiz003.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
+                elif settings.sections() != [] and settings['Main']['DarkTheme'] == 'Enabled':
+                    swiz003.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
+            except:
+                pass
             swiz003.ui.encoding_combo.addItem('UTF-8')
             swiz003.ui.encoding_combo.addItem('Windows-1251')
             swiz003.ui.encoding_combo.addItem('DOS (866)')
             swiz003.ui.encoding_combo.addItem('KOI8-R')
             swiz003.ui.encoding_combo.addItem('KOI8-U')
             swiz003.ui.authmethod_combo.addItem('NickServ')
-            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
-                swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
-            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
-                swiz003.ui.authmethod_combo.addItem(en_US.get()['w_o_auth'])
+            try:
+                if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                    swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
+                elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    swiz003.ui.authmethod_combo.addItem(en_US.get()['w_o_auth'])
+                if profiles[str(self.ui.lineEdit.text())]['AuthMethod'] == 'Disabled':
+                    if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                        swiz003.ui.authmethod_combo.setCurrentText(ru_RU.get()['w_o_auth'])
+                    elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                        swiz003.ui.authmethod_combo.setCurrentText(en_US.get()['w_o_auth'])
+            except:
+                pass
             try:
                 swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['quitingmsg'])
             except:
@@ -604,6 +652,10 @@ class SettingsWizard002(QtWidgets.QDialog):
                 swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.profname.text())]['quitingmsg'])
                 swiz003.ui.realname_box.setText(profiles[str(self.ui.lineEdit.text())]['RealName'])
                 swiz003.ui.hostname_box.setText(profiles[str(self.ui.lineEdit.text())]['HostName'])
+                if profiles[str(self.ui.lineEdit.text())]['SSL'] == 'Enabled':
+                    swiz003.ui.requiredssl_cb.setCheckState(2)
+                else:
+                    swiz003.ui.requiredssl_cb.setCheckState(0)
             except Exception as e:
                 if swiz003.ui.nicknames_combo.count() == 0:
                     swiz003.ui.nicknames_combo.addItem('')
@@ -622,7 +674,18 @@ class SettingsWizard002(QtWidgets.QDialog):
             swiz003.ui.encoding_combo.addItem('KOI8-R')
             swiz003.ui.encoding_combo.addItem('KOI8-U')
             swiz003.ui.authmethod_combo.addItem('NickServ')
-            swiz003.ui.authmethod_combo.addItem('Без аутентификации')
+            try:
+                if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                    swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
+                elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    swiz003.ui.authmethod_combo.addItem(en_US.get()['w_o_auth'])
+                if profiles[str(self.ui.lineEdit.text())]['AuthMethod'] == 'Disabled':
+                    if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                        swiz003.ui.authmethod_combo.setCurrentText(ru_RU.get()['w_o_auth'])
+                    elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                        swiz003.ui.authmethod_combo.setCurrentText(en_US.get()['w_o_auth'])
+            except:
+                pass
             try:
                 swiz003.ui.encoding_combo.setCurrentText(profiles[str(self.ui.profname.text())]['encoding'])
                 swiz003.ui.quiting_msg_box.setText(profiles[str(self.ui.profname.text())]['quitingmsg'])
@@ -762,7 +825,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.whois_item = self.contextMenu.addAction(en_US.get()['whois_a'], self.command_choosed)
                         self.part_item = self.contextMenu.addAction(en_US.get()['part_act'], self.command_choosed)
                         self.quit_item = self.contextMenu.addAction(en_US.get()['quit_act'], self.command_choosed)
-                        self.hidemenu_item = self.contextMenu.addAction(ru_RU.get()['hidemn_a'])
+                        self.hidemenu_item = self.contextMenu.addAction(en_US.get()['hidemn_a'])
                     else:
                         self.signin_item = self.contextMenu.addAction(ru_RU.get()['nicksv_a'], self.command_choosed)
                         self.joinch_item = self.contextMenu.addAction(ru_RU.get()['joinch_a'], self.command_choosed)
@@ -903,44 +966,48 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
             elif msg_line.startswith('{0} {1} {2} {3}'.format(self.server, 366, self.nickname, self.channel)):
                 decoded_text = status.split(' ')
-                if settings['Main']['Language'] == 'English':
-                    owners_list = QTreeWidgetItem([en_US.get()['owners']])
-                    operators_list = QTreeWidgetItem([en_US.get()['oprtors']])
-                    members_list = QTreeWidgetItem([en_US.get()['members']])
-                else:
-                    owners_list = QTreeWidgetItem([ru_RU.get()['owners']])
-                    operators_list = QTreeWidgetItem([ru_RU.get()['oprtors']])
-                    members_list = QTreeWidgetItem([ru_RU.get()['members']])
-                for operator in self.operators:
-                    if operator != '':
-                        child = QTreeWidgetItem([operator])
-                        operators_list.addChild(child)
-                for member in self.members:
-                    if member != '':
-                        child = QTreeWidgetItem([member])
-                        members_list.addChild(child)
-                for owner in self.owners:
-                    if owner != '':
-                        child = QTreeWidgetItem([owner])
-                        owners_list.addChild(child)
-                for i in range(self.parent.ui.tabs.count()):
-                    if self.parent.ui.tabs.tabText(i) == self.channel:
-                        tab = self.parent.ui.tabs.widget(i)
-                        tab.members_list.clear()
-                        tab.members_list.addTopLevelItems([owners_list, operators_list, members_list])
-                operators_list.setExpanded(True)
-                members_list.setExpanded(True)
-                owners_list.setExpanded(True)
+                try:
+                    if settings['Main']['Language'] == 'English':
+                        owners_list = QTreeWidgetItem([en_US.get()['owners']])
+                        operators_list = QTreeWidgetItem([en_US.get()['oprtors']])
+                        members_list = QTreeWidgetItem([en_US.get()['members']])
+                    else:
+                        owners_list = QTreeWidgetItem([ru_RU.get()['owners']])
+                        operators_list = QTreeWidgetItem([ru_RU.get()['oprtors']])
+                        members_list = QTreeWidgetItem([ru_RU.get()['members']])
+                    for operator in self.operators:
+                        if operator != '':
+                            child = QTreeWidgetItem([operator])
+                            operators_list.addChild(child)
+                    for member in self.members:
+                        if member != '':
+                            child = QTreeWidgetItem([member])
+                            members_list.addChild(child)
+                    for owner in self.owners:
+                        if owner != '':
+                            child = QTreeWidgetItem([owner])
+                            owners_list.addChild(child)
+                    for i in range(self.parent.ui.tabs.count()):
+                        if self.parent.ui.tabs.tabText(i) == self.channel:
+                            tab = self.parent.ui.tabs.widget(i)
+                            tab.members_list.clear()
+                            tab.members_list.addTopLevelItems([owners_list, operators_list, members_list])
+                    operators_list.setExpanded(True)
+                    members_list.setExpanded(True)
+                    owners_list.setExpanded(True)
+                except:
+                    pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 366)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 372)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
-                        self.parent.child_widget.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
+                        tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
                     else:
-                        self.parent.child_widget.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(self.parent.child_widget.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
+                        tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(self.parent.child_widget.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
                 except:
-                    self.parent.child_widget.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
+                    tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
             elif msg_line.startswith('{0} {1}'.format(self.server, 321)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 322)):
@@ -954,6 +1021,28 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                 tab.chat_text.setHtml('{0}<b>{1}</b><br>Topic: {2}<br>Members: {3}<br>-------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], " ".join(msg_line.split(' ')[5:]), msg_line.split(' ')[4]))
                         except:
                             tab.chat_text.setHtml('{0}{1}<br>Topic: {2}<br>Members: {3}<br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], " ".join(msg_line.split(' ')[5:]), msg_line.split(' ')[4]))
+            elif msg_line.startswith('{0} {1}'.format(self.server, 376)):
+                pass
+            elif msg_line.startswith('{0} {1}'.format(self.server, 378)):
+                pass
+            elif msg_line.startswith('{0} {1}'.format(self.server, 312)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}{1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+                    else:
+                        tab.chat_text.setHtml('{0}{1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+                except:
+                    tab.chat_text.setHtml('{0}{1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+            elif msg_line.startswith('{0} {1}'.format(self.server, 311)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}{1} ({2}@{3})<br>Real name: {4}<br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], msg_line.split(' ')[4], msg_line.split(' ')[5], ' '.join(msg_line.split(' ')[7:]).splitlines()[0]))
+                    else:
+                        tab.chat_text.setHtml('{0}<b>{1}</b> ({2}@{3})<br><i>Real name: {4}</i><br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], msg_line.split(' ')[4], msg_line.split(' ')[5], ' '.join(msg_line.split(' ')[7:]).splitlines()[0]))
+                except:
+                    tab.chat_text.setHtml('{0}{1} ({2}@{3})<br>Real name: {4}<br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], msg_line.split(' ')[4], msg_line.split(' ')[5], ' '.join(msg_line.split(' ')[7:]).splitlines()[0]))
             elif msg_line.find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
@@ -1083,8 +1172,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
                         else:
                             self.parent.ui.status_label.setText(ru_RU.get()['rdstatus'])
-                except:
-                    self.parent.child_widget.chat_text.setHtml('{0\n{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
+                except Exception as e:
+                    print(e)
+                    self.parent.child_widget.chat_text.setHtml('{0}\n{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
                     self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.find('NICK') != -1:
                 try:
@@ -1115,10 +1205,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.child_widget.chat_text.setHtml('{0}'.format(msg_line))
                 self.socket.close()
                 self.thread.stop()
-                if msg_line.startswith('Exception: [Errno 60]'):
+                if msg_line.startswith('Exception: [Errno 60]') or msg_line.startswith('Exception: [Errno -3]'):
                     self.timer = QTimer()
                     self.timer.timeout.connect(self.irc_reconnect)
                     self.timer.start(5000)
+                    self.timer_2 = QTimer()
+                    self.timer_2.timeout.connect(self.irc_reconnect_msg)
+                    self.timer_2.start(4000)
                 else:
                     self.ui.connect_btn.clicked.disconnect()
                     self.ui.connect_btn.clicked.connect(self.irc_connect)
@@ -1130,7 +1223,17 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 for i in range(self.parent.ui.tabs.count()):
                     if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
                         tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
-                        tab.chat_text.setHtml('{0}\n{1}'.format(tab.chat_text.toHtml(), msg_line))
+                        message_code = []
+                        message_splited = []
+                        for string in msg_line.split(' '):
+                            if msg_line.split(' ').index(string) == 1 and string.isdigit() == True:
+                                message_code.append(int(string))
+                            if msg_line.index(string) > 1 and message_code != []:
+                                message_splited.append(string.splitlines()[0])
+                        if message_code != []:
+                            tab.chat_text.setHtml('{0}\nCode {1:03d}: {2}'.format(tab.chat_text.toHtml(), message_code[0], ' '.join(message_splited[2:])))
+                        else:
+                            tab.chat_text.setHtml('{0}\n{1}'.format(tab.chat_text.toHtml(), msg_line))
                 self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             try:
                 if not msg_line.startswith('Exception: ') and settings.sections() != [] and settings['Main']['MsgHistory'] == 'Enabled':
@@ -1149,6 +1252,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
     def irc_reconnect(self):
         self.thread.start()
         self.timer.stop()
+
+    def irc_reconnect_msg(self):
+        self.parent.child_widget.chat_text.setHtml('{0}\nReconnecting...'.format(self.parent.child_widget.chat_text.toHtml()))
+        self.timer_2.stop()
 
     def send_msg(self):
         if self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/join '):
@@ -1173,11 +1280,12 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     self.tab.members_list.setStyleSheet('selection-background-color: #a14b00;')
                 self.parent.ui.tabs.addTab(self.tab, self.channel)
                 self.tab.message_text.setEnabled(True)
-                self.tab.message_text.setText('')
                 font = QFont(settings['Main']['MsgFont'].split(', ')[0])
                 font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
                 for i in range(self.parent.ui.tabs.count()):
                     self.parent.ui.tabs.widget(i).chat_text.setFont(font)
+                    self.parent.ui.tabs.widget(i).chat_text.setHtml(self.parent.child_widget.chat_text.toHtml())
+                    self.parent.ui.tabs.widget(i).message_text.setText('')
                 self.timer = QTimer()
                 self.timer.timeout.connect(self.chanjoined)
                 self.timer.start(100)
@@ -1336,6 +1444,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         try:
             swiz003.ui.realname_box.setText(profiles[str(swiz003.ui.profname_box.text())]['RealName'])
             swiz003.ui.hostname_box.setText(profiles[str(swiz003.ui.profname_box.text())]['HostName'])
+            if profiles[str(swiz003.ui.profname_box.text())]['SSL'] == 'Enabled':
+                swiz003.ui.requiredssl_cb.setCheckState(2)
+            else:
+                swiz003.ui.requiredssl_cb.setCheckState(0)
         except:
             pass
         swiz003.ui.encoding_combo.addItem('UTF-8')
@@ -1344,7 +1456,18 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         swiz003.ui.encoding_combo.addItem('KOI8-R')
         swiz003.ui.encoding_combo.addItem('KOI8-U')
         swiz003.ui.authmethod_combo.addItem('NickServ')
-        swiz003.ui.authmethod_combo.addItem('Без аутентификации')
+        try:
+            if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                swiz003.ui.authmethod_combo.addItem(ru_RU.get()['w_o_auth'])
+            elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                swiz003.ui.authmethod_combo.addItem(en_US.get()['w_o_auth'])
+            if profiles[str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text())]['AuthMethod'] == 'Disabled':
+                if settings.sections() != [] and settings['Main']['Language'] == 'Russian':
+                    swiz003.ui.authmethod_combo.setCurrentText(ru_RU.get()['w_o_auth'])
+                elif settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    swiz003.ui.authmethod_combo.setCurrentText(en_US.get()['w_o_auth'])
+        except:
+            pass
         try:
             fernet = Fernet(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['EncryptCode'].encode('UTF-8'))
             self.password = fernet.decrypt(bytes(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Password'], 'UTF-8')).decode(self.encoding)

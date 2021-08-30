@@ -44,7 +44,7 @@ color: rgb(255, 255, 255);</string>
       <string notr="true">selection-background-color: rgb(255, 119, 0);</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="main_tab">
       <attribute name="title">
@@ -272,84 +272,108 @@ border-color: rgb(255, 119, 0);</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>326</width>
-            <height>90</height>
-           </rect>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <property name="verticalSpacing">
-            <number>6</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="server_label">
-             <property name="text">
-              <string>Сервер:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="server_box">
-             <property name="styleSheet">
-              <string notr="true">selection-background-color: rgb(161, 75, 0);
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <property name="verticalSpacing">
+             <number>6</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="server_label">
+              <property name="text">
+               <string>Сервер:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="server_box">
+              <property name="styleSheet">
+               <string notr="true">selection-background-color: rgb(161, 75, 0);
 border-color: rgb(255, 119, 0);</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="encoding_label">
-             <property name="text">
-              <string>Кодировка:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="encoding_combo">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">selection-background-color: rgb(161, 75, 0);
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="encoding_label">
+              <property name="text">
+               <string>Кодировка:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="encoding_combo">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">selection-background-color: rgb(161, 75, 0);
 border-color: rgb(255, 119, 0);</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QSpinBox" name="port_box">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">selection-background-color: rgb(161, 75, 0);
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QSpinBox" name="port_box">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">selection-background-color: rgb(161, 75, 0);
 border-color: rgb(255, 119, 0);</string>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>99999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="port_label">
-             <property name="text">
-              <string>Порт:</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="port_label">
+              <property name="text">
+               <string>Порт:</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="requiredssl_cb">
+              <property name="text">
+               <string>Только SSL/TLS</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_4">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

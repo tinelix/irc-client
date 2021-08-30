@@ -72,6 +72,7 @@ def translate_003(mainclass, form, language, en_US, ru_RU):
             form.port_label.setText(ru_RU.get()['port'])
             form.encoding_label.setText(ru_RU.get()['encoding'])
             form.quitmsg_label.setText(ru_RU.get()['quit_msg'])
+            form.requiredssl_cb.setText(ru_RU.get()['only_ssl'])
         except Exception as e:
             print(e)
     elif language == 'English':
@@ -89,6 +90,7 @@ def translate_003(mainclass, form, language, en_US, ru_RU):
             form.port_label.setText(en_US.get()['port'])
             form.encoding_label.setText(en_US.get()['encoding'])
             form.quitmsg_label.setText(en_US.get()['quit_msg'])
+            form.requiredssl_cb.setText(en_US.get()['only_ssl'])
         except Exception as e:
             print(e)
 
