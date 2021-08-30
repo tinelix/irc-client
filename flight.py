@@ -165,7 +165,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.child_widget.members_list.setVisible(False)
         try:
             font = QFont(settings['Main']['MsgFont'].split(', ')[0])
-            font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+            try:
+                font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+            except:
+                pass
             for i in range(self.ui.tabs.count()):
                 self.ui.tabs.widget(i).chat_text.setFont(font)
         except:
@@ -396,7 +399,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 settings.write(configfile)
             translator.translate_001(self, self.child.ui, settings['Main']['Language'], en_US, ru_RU)
             font = QFont(settings['Main']['MsgFont'].split(', ')[0])
-            font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+            try:
+                font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+            except:
+                pass
             for i in range(self.ui.tabs.count()):
                 self.ui.tabs.widget(i).chat_text.setFont(font)
         except Exception as e:
@@ -1289,7 +1295,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.ui.tabs.addTab(self.tab, self.channel)
                 self.tab.message_text.setEnabled(True)
                 font = QFont(settings['Main']['MsgFont'].split(', ')[0])
-                font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+                try:
+                    font.setPointSize(int(settings['Main']['MsgFont'].split(', ')[1]))
+                except:
+                    pass
                 for i in range(self.parent.ui.tabs.count()):
                     self.parent.ui.tabs.widget(i).chat_text.setFont(font)
                     self.parent.ui.tabs.widget(i).chat_text.setHtml(self.parent.child_widget.chat_text.toHtml())
