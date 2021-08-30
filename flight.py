@@ -2,7 +2,6 @@
 import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
-from mem_top import mem_top
 from functools import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
@@ -117,7 +116,7 @@ class Thread(QThread):
                         self.started.emit(''.join(self.text.decode(self.encoding).split(":")), self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
                         msg_list = self.text.decode(self.encoding).splitlines()
                         for msg_line in msg_list:
-                            if msg_line.startswith('PING :'):
+                            if msg_line.startswith('PING'):
                                 ping_msg = msg_line.split(' ')
                                 self.socket.send(bytes('PONG {0}\r\n'.format(ping_msg[1]), self.encoding))
                                 self.started.emit('PONG', self.server, self.port, self.username, self.encoding, self.quiting_msg, self.ping, self.socket)
@@ -1219,7 +1218,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.parent.child_widget.chat_text.setHtml('{0}'.format(msg_line))
                 self.socket.close()
                 self.thread.stop()
-                if msg_line.startswith('Exception: [Errno 60]') or msg_line.startswith('Exception: [Errno -3]'):
+                if msg_line.startswith('Exception: [Errno 60]') or msg_line.startswith('Exception: [Errno -3]') or msg_line.startswith('Exception: [Errno 110]'):
                     self.timer = QTimer()
                     self.timer.timeout.connect(self.irc_reconnect)
                     self.timer.start(5000)
