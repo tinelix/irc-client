@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(461, 222)
+        Dialog.resize(461, 227)
         Dialog.setStyleSheet("background-color: rgb(43, 43, 43);\n"
 "color: rgb(255, 255, 255);")
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
@@ -79,7 +79,7 @@ class Ui_Dialog(object):
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.font_label = QtWidgets.QLabel(Dialog)
         self.font_label.setMinimumSize(QtCore.QSize(128, 30))
-        self.font_label.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.font_label.setMaximumSize(QtCore.QSize(128, 16777215))
         self.font_label.setObjectName("font_label")
         self.gridLayout_3.addWidget(self.font_label, 0, 0, 1, 1)
         self.msgfont_combo = QtWidgets.QFontComboBox(Dialog)
@@ -90,6 +90,7 @@ class Ui_Dialog(object):
         self.gridLayout_3.addWidget(self.msgfont_combo, 0, 1, 1, 1)
         self.font_size_sb = QtWidgets.QSpinBox(Dialog)
         self.font_size_sb.setMinimumSize(QtCore.QSize(52, 0))
+        self.font_size_sb.setMaximumSize(QtCore.QSize(52, 16777215))
         self.font_size_sb.setStyleSheet("border-color: rgb(255, 119, 0);\n"
 "selection-background-color: rgb(161, 75, 0);")
         self.font_size_sb.setMinimum(6)

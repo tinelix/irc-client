@@ -36,7 +36,7 @@ class Ui_Form(object):
         self.members_list.setMaximumSize(QtCore.QSize(144, 16777215))
         self.members_list.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.members_list.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.members_list.setEditTriggers(QtWidgets.QAbstractItemView.SelectedClicked)
+        self.members_list.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked|QtWidgets.QAbstractItemView.SelectedClicked)
         self.members_list.setIndentation(10)
         self.members_list.setRootIsDecorated(False)
         self.members_list.setAnimated(False)

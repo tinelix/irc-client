@@ -60,7 +60,7 @@ color: rgb(255, 255, 255);</string>
         <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
        <property name="editTriggers">
-        <set>QAbstractItemView::SelectedClicked</set>
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
        </property>
        <property name="indentation">
         <number>10</number>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>461</width>
-    <height>222</height>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -174,7 +174,7 @@ selection-background-color: rgb(255, 119, 0);</string>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
+         <width>128</width>
          <height>16777215</height>
         </size>
        </property>
@@ -200,6 +200,12 @@ selection-background-color: rgb(161, 75, 0);</string>
         <size>
          <width>52</width>
          <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>52</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="styleSheet">
