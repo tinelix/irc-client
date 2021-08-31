@@ -1489,6 +1489,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         self.timer.stop()
 
     def call_member_cm(self, pos):
+        self.tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
         if self.tab.members_list.currentItem().parent() != None:
             context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-146, -0)))
         try:
