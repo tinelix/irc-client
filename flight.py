@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '1.0'
+version = '0.4.7 Beta'
 date = '2021-08-31'
 
 init_required = 1
@@ -1030,11 +1030,22 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
-                        tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
+                        tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
                     else:
-                        tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(self.parent.child_widget.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
+                        tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
                 except:
-                    tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(self.parent.child_widget.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
+                    tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
+            elif msg_line.startswith('{0} {1}'.format(self.server, 671)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}\n{1} using a TLS/SSL connection.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
+                    else:
+                        tab.chat_text.setHtml('{0}\n{1} using a <b>TLS/SSL connection</b>.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
+                except:
+                    tab.chat_text.setHtml('{0}\n{1} using a TLS/SSL connection.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
+            elif msg_line.startswith('{0} {1}'.format(self.server, 318)):
+                pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 321)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 322)):
@@ -1073,6 +1084,58 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     tab.chat_text.moveCursor(QTextCursor.End)
                 except:
                     tab.chat_text.setHtml('{0}{1} ({2}@{3})<br>Real name: {4}<br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], msg_line.split(' ')[4], msg_line.split(' ')[5], ' '.join(msg_line.split(' ')[7:]).splitlines()[0]))
+                tab.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.startswith('{0} {1}'.format(self.server, 332)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}\nTopic: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:]).replace('http//', 'http://').replace('https//', 'https://')))
+                    else:
+                        tab.chat_text.setHtml('{0}\n<b>Topic:</b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:]).replace('http//', 'http://').replace('https//', 'https://')))
+                except:
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    tab.chat_text.setHtml('{0}\nTopic: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:]).replace('http//', 'http://').replace('https//', 'https://')))
+                tab.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.startswith('{0} {1}'.format(self.server, 333)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}\nTopic set by {1} ({2})'.format(tab.chat_text.toHtml(), msg_line.split(' ')[4], datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
+                    else:
+                        tab.chat_text.setHtml('{0}\nTopic set by {1} <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), msg_line.split(' ')[4], datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
+                except:
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    tab.chat_text.setHtml('{0}\nTopic set by {1} ({2})'.format(tab.chat_text.toHtml(), msg_line.split(' ')[4], datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
+                tab.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.startswith('{0} {1}'.format(self.server, 319)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}\nMutual channels: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+                    else:
+                        tab.chat_text.setHtml('{0}\nMutual channels: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+                except:
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    tab.chat_text.setHtml('{0}\nMutual channels: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
+                tab.chat_text.moveCursor(QTextCursor.End)
+            elif msg_line.startswith('{0} {1}'.format(self.server, 317)):
+                tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                try:
+                    if settings['Main']['MsgBacklight'] == 'Disabled':
+                        tab.chat_text.setHtml('{0}\n{1} idle, last logon time - {2}</span>'.format(tab.chat_text.toHtml(), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[4])).strftime('%H:%M:%S'), datetime.datetime.fromtimestamp(msg_line.split(' ')[5] / 1000).strftime('%Y-%m-%d %H:%M:%S')))
+                    else:
+                        tab.chat_text.setHtml('{0}\n{1} idle, last logon time - {2}</span>'.format(tab.chat_text.toHtml(), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[4])).strftime('%H:%M:%S'), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
+                except:
+                    exc_type, exc_value, exc_tb = sys.exc_info()
+                    ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                    print("\n".join(ex))
+                    tab.chat_text.setHtml('{0}\n{1} idle, last logon time - {2}</span>'.format(tab.chat_text.toHtml(), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[4])).strftime('%M:%S'), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
                 tab.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.find('PRIVMSG') != -1:
                 try:
@@ -1396,6 +1459,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('PART {0}\r\n'.format(self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex())), self.encoding))
                 self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).members_list.clear()
                 self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).members_list.setVisible(False)
+                self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.setEnabled(False)
                 for i in range(self.parent.ui.tabs.count()):
                     if i > 0 and self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
                         self.parent.ui.tabs.removeTab(i)
@@ -1486,6 +1550,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
     def chanjoined(self):
         tabs_count = self.parent.ui.tabs.count() - 1
         self.parent.ui.tabs.setCurrentIndex(tabs_count)
+        self.socket.send(bytes('TOPIC {0}\r\n'.format(self.channel), self.encoding))
         self.timer.stop()
 
     def call_member_cm(self, pos):
