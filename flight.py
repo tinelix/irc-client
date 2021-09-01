@@ -22,7 +22,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.8 Beta'
+version = '0.4.9 Beta'
 date = '2021-09-01'
 
 init_required = 1
@@ -70,7 +70,11 @@ class Thread(QThread):
                 self.port = int(profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['Port'])
                 self.channel = ""
                 self.socket = self.parent.socket
-                self.socket.settimeout(10)
+                try:
+                    self.socket.settimeout(10)
+                except:
+                    self.parent.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.socket = self.parent.socket
                 self.quiting_msg = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['quitingmsg']
                 try:
                     self.realname = profiles[self.parent.ui.tableWidget.item(self.parent.ui.tableWidget.currentRow(), 0).text()]['realname']
@@ -1397,18 +1401,6 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.tab.members_list.setContextMenuPolicy(Qt.CustomContextMenu)
                 self.tab.members_list.customContextMenuRequested.connect(self.call_member_cm)
                 self.member_context_menu = QMenu(self)
-                try:
-                    settings.read('settings')
-                    if settings.sections() != [] and settings['Main']['Language'] == 'English':
-                        self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
-                        self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
-                        self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
-                    else:
-                        self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
-                        self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
-                        self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
-                except:
-                    pass
                 self.parent.ui.tabs.addTab(self.tab, self.channel)
                 self.tab.message_text.setEnabled(True)
                 self.tab.send_msg_btn.setEnabled(False)
@@ -1546,13 +1538,35 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
     def chanjoined(self):
         tabs_count = self.parent.ui.tabs.count() - 1
         self.parent.ui.tabs.setCurrentIndex(tabs_count)
-        self.socket.send(bytes('TOPIC {0}\r\n'.format(self.channel), self.encoding))
+        try:
+            self.socket.send(bytes('TOPIC {0}\r\n'.format(self.channel), self.encoding))
+        except:
+            pass
         self.timer.stop()
 
     def call_member_cm(self, pos):
         self.tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
         if self.tab.members_list.currentItem().parent() != None:
+            nick_action = QtWidgets.QWidgetAction(self.member_context_menu)
+            nick_label = QtWidgets.QLabel(self.tab.members_list.currentItem().text(0))
+            nick_action.setDefaultWidget(nick_label)
+            nick_action.setEnabled(False)
+            nick_label.setStyleSheet('QLabel {margin-left: 13px;\nfont-weight: 700;}')
+            self.member_context_menu.addAction(nick_action)
+            try:
+                settings.read('settings')
+                if settings.sections() != [] and settings['Main']['Language'] == 'English':
+                    self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
+                    self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
+                    self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
+                else:
+                    self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
+                    self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
+                    self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
+            except:
+                pass
             context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-146, -0)))
+            self.member_context_menu.clear()
         try:
             if context_menu == self.mention_item and self.tab.members_list.currentItem().text(0) != '':
                 self.tab.message_text.setText(self.tab.members_list.currentItem().text(0))
