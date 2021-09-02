@@ -22,8 +22,8 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.4.9 Beta'
-date = '2021-09-01'
+version = '0.4.10 Beta'
+date = '2021-09-02'
 
 init_required = 1
 
@@ -169,6 +169,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         profiles.read('profiles')
         print('Tinelix codename Flight {0} ({1})\nDone!'.format(version, date))
         self.ui.tabs.addTab(self.child_widget, 'Thread')
+        self.child_widget.chat_text.setVerticalScrollBar(self.child_widget.verticalScrollBar)
+        self.child_widget.members_list.setVerticalScrollBar(self.child_widget.verticalScrollBar_2)
         self.child_widget.members_list.setVisible(False)
         try:
             font = QFont(settings['Main']['MsgFont'].split(', ')[0])
@@ -197,6 +199,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.child_widget.members_list.setStyleSheet('selection-background-color: #ff7700')
                 if self.child_widget.message_text.isEnabled() == True:
                     self.child_widget.message_text.setStyleSheet('selection-background-color: #ff7700')
+                self.child_widget.verticalScrollBar.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #ff7700;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                self.child_widget.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #ff7700;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
             else:
                 self.ui.line.setStyleSheet('color: #4a4a4a')
                 self.child.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
@@ -207,6 +211,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.child_widget.members_list.setStyleSheet('selection-background-color: #a14b00')
                 if self.child_widget.message_text.isEnabled() == True:
                     self.child_widget.message_text.setStyleSheet('selection-background-color: #a14b00')
+                self.child_widget.verticalScrollBar.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                self.child_widget.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
 
         #swiz001 = SettingsWizard001()
         if settings.sections() == [] or profiles.sections == []:
@@ -335,6 +341,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 tab.setStyleSheet('background-color: #ffffff;\ncolor: #000000;')
                 tab.chat_text.setStyleSheet('selection-background-color: #ff7700')
                 tab.members_list.setStyleSheet('selection-background-color: #ff7700')
+                tab.verticalScrollBar.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #ff7700;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                tab.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #ff7700;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
             if self.child_widget.message_text.isEnabled() == True:
                 self.child_widget.message_text.setStyleSheet('selection-background-color: #ff7700')
             else:
@@ -364,6 +372,8 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 tab.setStyleSheet('background-color: #313131;\ncolor: #ffffff;')
                 tab.chat_text.setStyleSheet('selection-background-color: #a14b00')
                 tab.members_list.setStyleSheet('selection-background-color: #a14b00')
+                tab.verticalScrollBar.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                tab.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
             if self.child_widget.message_text.isEnabled() == True:
                 self.child_widget.message_text.setStyleSheet('selection-background-color: #a14b00')
             try:
@@ -1002,8 +1012,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             tab = self.parent.ui.tabs.widget(i)
                             tab.members_list.clear()
                             tab.members_list.addTopLevelItems([owners_list, operators_list, members_list])
+                    operators_list.setIcon(0, QIcon(':/icons/operator_icon.png'))
                     operators_list.setExpanded(True)
+                    members_list.setIcon(0, QIcon(':/icons/member_icon.png'))
                     members_list.setExpanded(True)
+                    owners_list.setIcon(0, QIcon(':/icons/owner_icon.png'))
                     owners_list.setExpanded(True)
                     self.members = []
                     self.operators = []
@@ -1023,6 +1036,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
                 except:
                     tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
+                tab.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.startswith('{0} {1}'.format(self.server, 371)):
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
@@ -1032,6 +1046,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         tab.chat_text.setHtml('{0}\n<b><i>Info:</i></b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
                 except:
                     tab.chat_text.setHtml('{0}\nInfo: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
+                tab.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.startswith('{0} {1}'.format(self.server, 671)):
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
@@ -1041,6 +1056,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         tab.chat_text.setHtml('{0}\n{1} using a <b>TLS/SSL connection</b>.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
                 except:
                     tab.chat_text.setHtml('{0}\n{1} using a TLS/SSL connection.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
+                tab.chat_text.moveCursor(QTextCursor.End)
             elif msg_line.startswith('{0} {1}'.format(self.server, 318)):
                 pass
             elif msg_line.startswith('{0} {1}'.format(self.server, 321)):
@@ -1310,6 +1326,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                 except:
                                     tab.chat_text.setHtml('{0}\n{1} changed nickname to {2}. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(decoded_text[3:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                 tab.chat_text.moveCursor(QTextCursor.End)
+                                self.socket.send(bytes('NAMES {0}\r\n'.format(self.parent.ui.tabs.tabText(i)), self.encoding))
                         try:
                             if settings['Main']['Language'] == 'English':
                                 self.parent.ui.status_label.setText(en_US.get()['rdstatus'])
@@ -1355,7 +1372,6 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         else:
                             tab.chat_text.setHtml('{0}\n{1}'.format(tab.chat_text.toHtml(), msg_line))
                         tab.chat_text.moveCursor(QTextCursor.End)
-                self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
             try:
                 if not msg_line.startswith('Exception: ') and settings.sections() != [] and settings['Main']['MsgHistory'] == 'Enabled':
                     if not os.path.exists('history'):
@@ -1394,14 +1410,20 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     self.tab.setStyleSheet('background-color: #ffffff;\ncolor: #000000;\nselection-background-color: rgb(255, 119, 0);')
                     self.tab.chat_text.setStyleSheet('selection-background-color: rgb(255, 119, 0);')
                     self.tab.members_list.setStyleSheet('selection-background-color: #ff7700;')
+                    self.tab.verticalScrollBar.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #ff7700;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                    self.tab.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: #a14b00;\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_light.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(255, 255, 255);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_light.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
                 else:
                     self.tab.setStyleSheet('background-color: #313131;\ncolor: #ffffff;\nselection-background-color: rgb(161, 75, 0);')
                     self.tab.chat_text.setStyleSheet('selection-background-color: rgb(161, 75, 0);')
                     self.tab.members_list.setStyleSheet('selection-background-color: #a14b00;')
+                    self.tab.verticalScrollBar.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+                    self.tab.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
                 self.tab.members_list.setContextMenuPolicy(Qt.CustomContextMenu)
                 self.tab.members_list.customContextMenuRequested.connect(self.call_member_cm)
                 self.member_context_menu = QMenu(self)
                 self.parent.ui.tabs.addTab(self.tab, self.channel)
+                self.tab.chat_text.setVerticalScrollBar(self.tab.verticalScrollBar)
+                self.tab.members_list.setVerticalScrollBar(self.tab.verticalScrollBar_2)
                 self.tab.message_text.setEnabled(True)
                 self.tab.send_msg_btn.setEnabled(False)
                 self.tab.send_msg_btn.clicked.connect(self.send_msg)
@@ -1546,27 +1568,38 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
 
     def call_member_cm(self, pos):
         self.tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
-        if self.tab.members_list.currentItem().parent() != None:
-            nick_action = QtWidgets.QWidgetAction(self.member_context_menu)
-            nick_label = QtWidgets.QLabel(self.tab.members_list.currentItem().text(0))
-            nick_action.setDefaultWidget(nick_label)
-            nick_action.setEnabled(False)
-            nick_label.setStyleSheet('QLabel {margin-left: 13px;\nfont-weight: 700;}')
-            self.member_context_menu.addAction(nick_action)
-            try:
-                settings.read('settings')
-                if settings.sections() != [] and settings['Main']['Language'] == 'English':
-                    self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
-                    self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
-                    self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
-                else:
-                    self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
-                    self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
-                    self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
-            except:
-                pass
-            context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-146, -0)))
-            self.member_context_menu.clear()
+        try:
+            if self.tab.members_list.currentItem().parent() != None:
+                nick_action = QtWidgets.QWidgetAction(self.member_context_menu)
+                nick_label = QtWidgets.QLabel(self.tab.members_list.currentItem().text(0))
+                nick_action.setDefaultWidget(nick_label)
+                nick_action.setEnabled(False)
+                self.member_context_menu.clear()
+                try:
+                    settings.read('settings')
+                    if settings.sections() != [] and settings['Main']['DarkTheme'] == 'Enabled':
+                        nick_label.setStyleSheet('QLabel {margin-left: 13px;\nfont-weight: 700; color: #828282}')
+                    elif settings.sections() != [] and settings['Main']['DarkTheme'] == 'Disabled':
+                        nick_label.setStyleSheet('QLabel {margin-left: 13px;\nfont-weight: 700; color: #626262}')
+                    else:
+                        nick_label.setStyleSheet('QLabel {margin-left: 13px;\nfont-weight: 700;}')
+                except:
+                    pass
+                self.member_context_menu.addAction(nick_action)
+                try:
+                    if settings.sections() != [] and settings['Main']['Language'] == 'English':
+                        self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
+                        self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
+                        self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
+                    else:
+                        self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
+                        self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
+                        self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
+                except:
+                    pass
+                context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-self.member_context_menu.width() - 2, -0)))
+        except:
+            pass
         try:
             if context_menu == self.mention_item and self.tab.members_list.currentItem().text(0) != '':
                 self.tab.message_text.setText(self.tab.members_list.currentItem().text(0))

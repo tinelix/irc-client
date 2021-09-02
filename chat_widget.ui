@@ -29,13 +29,113 @@ color: rgb(255, 255, 255);</string>
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
+        <string notr="true">selection-background-color: rgb(161, 75, 0);
+
+QScrollBar::handle {
+border-syle: outset;
+background: #444444;
+border-width: 2px;
+border-radius: 10px;
+}
+
+QScrollBar::handle::pressed {
+background: rgb(161, 75, 0);
+}
+
+QScrollBar::add-page {
+background-color: rgb(43, 43, 43);
+}</string>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="undoRedoEnabled">
         <bool>false</bool>
        </property>
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QScrollBar" name="verticalScrollBar">
+       <property name="styleSheet">
+        <string notr="true">QScrollBar:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     width: 15px;
+     margin: 16px 0 16px 0;
+ }
+ QScrollBar::handle:vertical {
+     background: rgb(161, 75, 0);
+	 border-width: 2px;
+	 border-radius: 10px;
+ }
+ QScrollBar::add-line:vertical {
+     border: 0px solid;
+	 background-color: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/up_arrow_dark.png);
+ }
+
+ QScrollBar::sub-line:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/down_arrow_dark.png);
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QScrollBar" name="verticalScrollBar_2">
+       <property name="styleSheet">
+        <string notr="true">QScrollBar:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     width: 15px;
+     margin: 16px 0 16px 0;
+ }
+ QScrollBar::handle:vertical {
+     background: rgb(161, 75, 0);
+	 border-width: 2px;
+	 border-radius: 10px;
+ }
+ QScrollBar::add-line:vertical {
+     border: 0px solid;
+	 background-color: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/up_arrow_dark.png);
+ }
+
+ QScrollBar::sub-line:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/down_arrow_dark.png);
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -52,6 +152,9 @@ color: rgb(255, 255, 255);</string>
          <width>144</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">selection-background-color: rgb(161, 75, 0);</string>
        </property>
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -79,6 +182,9 @@ color: rgb(255, 255, 255);</string>
        </property>
        <attribute name="headerVisible">
         <bool>false</bool>
+       </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>true</bool>
        </attribute>
        <column>
         <property name="text">
@@ -141,6 +247,8 @@ color: rgb(79, 79, 79);</string>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

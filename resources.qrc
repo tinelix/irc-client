@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>member_icon.png</file>
     <file>owner_icon.png</file>
     <file>admin_icon.png</file>
     <file>operator_icon.png</file>
@@ -7,6 +8,12 @@
     <file>icon_32x32.png</file>
     <file>icon_48x48.png</file>
     <file>icon_64_64.png</file>
+  </qresource>
+  <qresource prefix="arrows">
+    <file>down_arrow_dark.png</file>
+    <file>down_arrow_light.png</file>
+    <file>up_arrow_dark.png</file>
+    <file>up_arrow_light.png</file>
   </qresource>
   <qresource prefix="button_icons">
     <file>closebutton.png</file>
