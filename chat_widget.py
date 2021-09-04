@@ -26,14 +26,103 @@ class Ui_Form(object):
         font.setFamily("Consolas")
         font.setPointSize(10)
         self.chat_text.setFont(font)
-        self.chat_text.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
+        self.chat_text.setStyleSheet("selection-background-color: rgb(161, 75, 0);\n"
+"\n"
+"QScrollBar::handle {\n"
+"border-syle: outset;\n"
+"background: #444444;\n"
+"border-width: 2px;\n"
+"border-radius: 10px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle::pressed {\n"
+"background: rgb(161, 75, 0);\n"
+"}\n"
+"\n"
+"QScrollBar::add-page {\n"
+"background-color: rgb(43, 43, 43);\n"
+"}")
+        self.chat_text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.chat_text.setUndoRedoEnabled(False)
         self.chat_text.setReadOnly(True)
         self.chat_text.setObjectName("chat_text")
         self.horizontalLayout_4.addWidget(self.chat_text)
+        self.verticalScrollBar = QtWidgets.QScrollBar(Form)
+        self.verticalScrollBar.setStyleSheet("QScrollBar:vertical {\n"
+"     border: 0px solid;\n"
+"     background: rgb(43, 43, 43);\n"
+"     width: 15px;\n"
+"     margin: 16px 0 16px 0;\n"
+" }\n"
+" QScrollBar::handle:vertical {\n"
+"     background: rgb(161, 75, 0);\n"
+"     border-width: 2px;\n"
+"     border-radius: 10px;\n"
+" }\n"
+" QScrollBar::add-line:vertical {\n"
+"     border: 0px solid;\n"
+"     background-color: rgb(43, 43, 43);\n"
+"     height: 16px;\n"
+"     subcontrol-position: bottom;\n"
+"     subcontrol-origin: margin;\n"
+"     image: url(:/arrows/up_arrow_dark.png);\n"
+" }\n"
+"\n"
+" QScrollBar::sub-line:vertical {\n"
+"     border: 0px solid;\n"
+"     background: rgb(43, 43, 43);\n"
+"     height: 16px;\n"
+"     subcontrol-position: top;\n"
+"     subcontrol-origin: margin;\n"
+"     image: url(:/arrows/down_arrow_dark.png);\n"
+" }\n"
+"\n"
+" QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\n"
+"     background: none;\n"
+" }")
+        self.verticalScrollBar.setOrientation(QtCore.Qt.Vertical)
+        self.verticalScrollBar.setObjectName("verticalScrollBar")
+        self.horizontalLayout_4.addWidget(self.verticalScrollBar)
+        self.verticalScrollBar_2 = QtWidgets.QScrollBar(Form)
+        self.verticalScrollBar_2.setStyleSheet("QScrollBar:vertical {\n"
+"     border: 0px solid;\n"
+"     background: rgb(43, 43, 43);\n"
+"     width: 15px;\n"
+"     margin: 16px 0 16px 0;\n"
+" }\n"
+" QScrollBar::handle:vertical {\n"
+"     background: rgb(161, 75, 0);\n"
+"     border-width: 2px;\n"
+"     border-radius: 10px;\n"
+" }\n"
+" QScrollBar::add-line:vertical {\n"
+"     border: 0px solid;\n"
+"     background-color: rgb(43, 43, 43);\n"
+"     height: 16px;\n"
+"     subcontrol-position: bottom;\n"
+"     subcontrol-origin: margin;\n"
+"     image: url(:/arrows/up_arrow_dark.png);\n"
+" }\n"
+"\n"
+" QScrollBar::sub-line:vertical {\n"
+"     border: 0px solid;\n"
+"     background: rgb(43, 43, 43);\n"
+"     height: 16px;\n"
+"     subcontrol-position: top;\n"
+"     subcontrol-origin: margin;\n"
+"     image: url(:/arrows/down_arrow_dark.png);\n"
+" }\n"
+"\n"
+" QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\n"
+"     background: none;\n"
+" }")
+        self.verticalScrollBar_2.setOrientation(QtCore.Qt.Vertical)
+        self.verticalScrollBar_2.setObjectName("verticalScrollBar_2")
+        self.horizontalLayout_4.addWidget(self.verticalScrollBar_2)
         self.members_list = QtWidgets.QTreeWidget(Form)
         self.members_list.setMinimumSize(QtCore.QSize(144, 0))
         self.members_list.setMaximumSize(QtCore.QSize(144, 16777215))
+        self.members_list.setStyleSheet("selection-background-color: rgb(161, 75, 0);")
         self.members_list.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.members_list.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.members_list.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked|QtWidgets.QAbstractItemView.SelectedClicked)
@@ -44,6 +133,7 @@ class Ui_Form(object):
         self.members_list.setExpandsOnDoubleClick(True)
         self.members_list.setObjectName("members_list")
         self.members_list.header().setVisible(False)
+        self.members_list.header().setStretchLastSection(True)
         self.horizontalLayout_4.addWidget(self.members_list)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
@@ -76,3 +166,4 @@ class Ui_Form(object):
         self.members_list.headerItem().setText(0, _translate("Form", "Members"))
         self.message_text.setText(_translate("Form", "На данный момент отправить сообщение нельзя"))
         self.send_msg_btn.setText(_translate("Form", "Отправить"))
+import resources_rc

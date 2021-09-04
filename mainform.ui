@@ -255,7 +255,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>595</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -282,9 +282,20 @@ color: rgb(255, 255, 255);</string>
     <property name="title">
      <string>Вид</string>
     </property>
+    <addaction name="separator"/>
     <addaction name="settings_item"/>
    </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>Канал</string>
+    </property>
+    <addaction name="join_item"/>
+    <addaction name="leave_item"/>
+    <addaction name="separator"/>
+    <addaction name="msg_history"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_4"/>
    <addaction name="menu_3"/>
    <addaction name="menu_2"/>
   </widget>
@@ -327,6 +338,41 @@ color: rgb(255, 255, 255);</string>
   <action name="settings_item">
    <property name="text">
     <string>Настройки</string>
+   </property>
+  </action>
+  <action name="join_item">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Присоединиться...</string>
+   </property>
+  </action>
+  <action name="leave_item">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Покинуть</string>
+   </property>
+  </action>
+  <action name="members_list_item">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Список участников</string>
+   </property>
+  </action>
+  <action name="msg_history">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>История</string>
    </property>
   </action>
  </widget>
