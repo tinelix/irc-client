@@ -1,3 +1,5 @@
+# Tinelix IRC Client for PyQt5
+# Licensed by GPLv3.
 
 def get():
     return {

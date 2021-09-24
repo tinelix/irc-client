@@ -1,3 +1,6 @@
+<!--Tinelix IRC Client for PyQt5
+Licensed by GPLv3.-->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Dialog</class>

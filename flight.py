@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+
+# Tinelix IRC Client for PyQt5
+# Licensed by GPLv3.
+
 import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
