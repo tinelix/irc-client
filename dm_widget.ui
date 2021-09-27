@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DirectMessagesForm</class>
+ <widget class="QWidget" name="DirectMessagesForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>488</width>
+    <height>322</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Личные сообщения</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(43, 43, 43);
+color: rgb(255, 255, 255);</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QTreeView" name="dialogs_list">
+       <property name="maximumSize">
+        <size>
+         <width>144</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QScrollBar" name="verticalScrollBar_1">
+       <property name="styleSheet">
+        <string notr="true">QScrollBar:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     width: 15px;
+     margin: 16px 0 16px 0;
+ }
+ QScrollBar::handle:vertical {
+     background: rgb(161, 75, 0);
+	 border-width: 2px;
+	min-height: 4px;
+	 border-radius: 10px;
+ }
+ QScrollBar::add-line:vertical {
+     border: 0px solid;
+	 background-color: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/up_arrow_dark.png);
+ }
+
+ QScrollBar::sub-line:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/down_arrow_dark.png);
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTextEdit" name="dm_text"/>
+     </item>
+     <item>
+      <widget class="QScrollBar" name="verticalScrollBar_3">
+       <property name="styleSheet">
+        <string notr="true">QScrollBar:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     width: 15px;
+     margin: 16px 0 16px 0;
+ }
+ QScrollBar::handle:vertical {
+     background: rgb(161, 75, 0);
+	 border-width: 2px;
+	min-height: 4px;
+	 border-radius: 10px;
+ }
+ QScrollBar::add-line:vertical {
+     border: 0px solid;
+	 background-color: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/up_arrow_dark.png);
+ }
+
+ QScrollBar::sub-line:vertical {
+     border: 0px solid;
+     background: rgb(43, 43, 43);
+     height: 16px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+	 image: url(:/arrows/down_arrow_dark.png);
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="message_text_2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>23</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">selection-background-color: rgb(161, 75, 0);
+color: rgb(79, 79, 79);</string>
+         </property>
+         <property name="text">
+          <string>На данный момент отправить сообщение нельзя</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="send_msg_btn_2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(255, 119, 0); selection-background-color: rgb(255, 119, 0); color: #4f4f4f</string>
+         </property>
+         <property name="text">
+          <string>Отправить</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

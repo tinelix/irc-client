@@ -17,12 +17,16 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
             pass
         try:
             mainclass.ui.menu.setTitle(ru_RU.get()['filemenu'])
+            mainclass.ui.menu_4.setTitle(ru_RU.get()['chanmenu'])
             mainclass.ui.menu_2.setTitle(ru_RU.get()['helpmenu'])
             mainclass.ui.menu_3.setTitle(ru_RU.get()['viewmenu'])
             mainclass.ui.connect_item.setText(ru_RU.get()['conn_mi'])
             mainclass.ui.settings_item.setText(ru_RU.get()['setsitem'])
             mainclass.ui.quit_item.setText(ru_RU.get()['quit_mi'])
             mainclass.ui.about_item.setText(ru_RU.get()['about_mi'])
+            mainclass.ui.join_item.setText(ru_RU.get()['joinchan'])
+            mainclass.ui.leave_item.setText(ru_RU.get()['lv_chan'])
+            mainclass.ui.msg_history.setText(ru_RU.get()['msg_hist'])
             mainclass.child_widget.send_msg_btn.setText(ru_RU.get()['send_msg'])
             if mainclass.child_widget.message_text.isEnabled() == False:
                 mainclass.child_widget.message_text.setText(ru_RU.get()['cantsmsg'])
@@ -32,12 +36,16 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
     elif language == 'English':
         try:
             mainclass.ui.menu.setTitle(en_US.get()['filemenu'])
+            mainclass.ui.menu_4.setTitle(en_US.get()['chanmenu'])
             mainclass.ui.menu_2.setTitle(en_US.get()['helpmenu'])
             mainclass.ui.menu_3.setTitle(en_US.get()['viewmenu'])
             mainclass.ui.connect_item.setText(en_US.get()['conn_mi'])
             mainclass.ui.settings_item.setText(en_US.get()['setsitem'])
             mainclass.ui.quit_item.setText(en_US.get()['quit_mi'])
             mainclass.ui.about_item.setText(en_US.get()['about_mi'])
+            mainclass.ui.join_item.setText(en_US.get()['joinchan'])
+            mainclass.ui.leave_item.setText(en_US.get()['lv_chan'])
+            mainclass.ui.msg_history.setText(en_US.get()['msg_hist'])
             mainclass.child_widget.send_msg_btn.setText(en_US.get()['send_msg'])
             if mainclass.child_widget.message_text.isEnabled() == False:
                 mainclass.child_widget.message_text.setText(en_US.get()['cantsmsg'])
