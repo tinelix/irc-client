@@ -31,6 +31,8 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
             if mainclass.child_widget.message_text.isEnabled() == False:
                 mainclass.child_widget.message_text.setText(ru_RU.get()['cantsmsg'])
             mainclass.ui.conn_quality_label.setText(ru_RU.get()['connqual'])
+            mainclass.child_widget.error_getting_member_list.setText(ru_RU.get()['mbgt_err'])
+            mainclass.child_widget.close_panel_btn.setText(ru_RU.get()['mbget_cl'])
         except Exception as e:
             print(e)
     elif language == 'English':
@@ -50,6 +52,8 @@ def translate_001(mainclass, form, language, en_US, ru_RU):
             if mainclass.child_widget.message_text.isEnabled() == False:
                 mainclass.child_widget.message_text.setText(en_US.get()['cantsmsg'])
             mainclass.ui.conn_quality_label.setText(en_US.get()['connqual'])
+            mainclass.child_widget.error_getting_member_list.setText(en_US.get()['mbgt_err'])
+            mainclass.child_widget.close_panel_btn.setText(en_US.get()['mbget_cl'])
         except Exception as e:
             print(e)
         try:
@@ -134,6 +138,7 @@ def translate_005(mainclass, form, language, en_US, ru_RU):
             form.msgs_hint.setText(ru_RU.get()['msgshtcb'])
             form.backlight_cb.setText(ru_RU.get()['msgbclcb'])
             form.font_label.setText(ru_RU.get()['msg_font'])
+            form.parsing_debugger_cb.setText(ru_RU.get()['parsdbg'])
         except Exception as e:
             print(e)
     elif language == 'English':
@@ -145,6 +150,7 @@ def translate_005(mainclass, form, language, en_US, ru_RU):
             form.msgs_hint.setText(en_US.get()['msgshtcb'])
             form.backlight_cb.setText(en_US.get()['msgbclcb'])
             form.font_label.setText(en_US.get()['msg_font'])
+            form.parsing_debugger_cb.setText(en_US.get()['parsdbg'])
         except Exception as e:
             print(e)
 
