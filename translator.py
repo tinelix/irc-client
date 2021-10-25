@@ -112,7 +112,12 @@ def translate_004(mainclass, form, language, en_US, ru_RU):
     if language == 'Russian':
         try:
             mainclass.child_4.setWindowTitle(ru_RU.get()['about_tt'])
-            form.description_label.setText(ru_RU.get()['free_sft'].format(QT_VERSION_STR, PYQT_VERSION_STR))
+            form.about_used_components.setText(ru_RU.get()['usingcmp'])
+            form.pyqt_version_label.setText(ru_RU.get()['pyqt_ver'])
+            form.qt_version_label.setText(ru_RU.get()['qt_fwver'])
+            form.python_version_label.setText(ru_RU.get()['python_v'])
+            form.about_software_platform.setText(ru_RU.get()['platform'])
+            form.about_software_platform.setText(ru_RU.get()['ptfm_ver'])
             form.label.setText(ru_RU.get()['gpl_info'])
             form.repo_btn.setText(ru_RU.get()['repo_btn'])
         except Exception as e:
@@ -120,7 +125,12 @@ def translate_004(mainclass, form, language, en_US, ru_RU):
     elif language == 'English':
         try:
             mainclass.child_4.setWindowTitle(en_US.get()['about_tt'])
-            form.description_label.setText(en_US.get()['free_sft'].format(QT_VERSION_STR, PYQT_VERSION_STR))
+            form.about_used_components.setText(en_US.get()['usingcmp'])
+            form.pyqt_version_label.setText(en_US.get()['pyqt_ver'])
+            form.qt_version_label.setText(en_US.get()['qt_fwver'])
+            form.python_version_label.setText(en_US.get()['python_v'])
+            form.about_software_platform.setText(en_US.get()['platform'])
+            form.about_software_platform.setText(en_US.get()['ptfm_ver'])
             form.label.setText(en_US.get()['gpl_info'])
             form.repo_btn.setText(en_US.get()['repo_btn'])
         except Exception as e:

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc, platform
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
 from functools import *
@@ -23,8 +23,8 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.5.2 Beta'
-date = '2021-10-16'
+version = '0.6.0 Beta'
+date = '2021-10-25'
 
 init_required = 1
 
@@ -111,7 +111,6 @@ class Thread(QThread):
                     except:
                         self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
                     self.socket.send(bytes("NICK " + self.username + "\n", self.encoding))
-
                     while True:
                         self.text=self.socket.recv(8192)
                         self.ping = time.time()
@@ -1235,7 +1234,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
             elif ' '.join(msg_line.split(' ')[0:2]).find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
-                    if decoded_text[2] == 'PRIVMSG':
+                    if decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001VERSION\001":
+                        self.socket.send(bytes("NOTICE {0} \001VERSION Tinelix IRC Client {1} ({2}). PyQt5 version: {3} | Qt version: {4} | Python version: {5}.{6}.{7} | Platform: {8} | Platform version: {9}\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR, sys.version_info[0], sys.version_info[1], sys.version_info[2], platform.system(), platform.version()), self.encoding));
+                    elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001CLIENTINFO\001":
+                        self.socket.send(bytes("NOTICE {0} \001CLIENTINFO Tinelix IRC Client {1} for Python ({2}). Powered by PyQt5 {3} with Qt {4}. Source code repository link: https://github.com/tinelix/irc-client (GNU GPL 3.0)\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR), self.encoding));
+                    elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] != "\001VERSION\001" and decoded_text[4] != "\001CLIENTINFO\001":
                         for i in range(self.parent.ui.tabs.count()):
                             if self.parent.ui.tabs.tabText(i) == decoded_text[3]:
                                 tab = self.parent.ui.tabs.widget(i)
@@ -1604,6 +1607,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('PING {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 pass
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/ctcp') and len(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')) == 3:
+            if(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[2] == 'version'):
+                self.socket.send(bytes('PRIVMSG {0} \001VERSION\001\r\n'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[1]), self.encoding))
+            elif(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[2] == 'clientinfo'):
+                self.socket.send(bytes('PRIVMSG {0} \001CLIENTINFO\001\r\n'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[1]), self.encoding))
         elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == '/disconnect' or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/quit'):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
@@ -1718,10 +1726,14 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
                         self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
                         self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
+                        self.check_client_version_item = self.member_context_menu.addAction(en_US.get()['ver_ctcp'])
+                        self.clientinfo_item = self.member_context_menu.addAction(en_US.get()['clinctcp'])
                     else:
                         self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
                         self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
                         self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
+                        self.check_client_version_item = self.member_context_menu.addAction(ru_RU.get()['ver_ctcp'])
+                        self.clientinfo_item = self.member_context_menu.addAction(ru_RU.get()['clinctcp'])
                 except:
                     pass
                 context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-self.member_context_menu.width() - 2, -0)))
@@ -1734,6 +1746,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.tab.message_text.setText('/whois {0}'.format(self.tab.members_list.currentItem().text(0)))
             elif context_menu == self.ping_item and self.tab.members_list.currentItem().text(0) != '':
                 self.tab.message_text.setText('/ping {0}'.format(self.tab.members_list.currentItem().text(0)))
+            elif context_menu == self.check_client_version_item and self.tab.members_list.currentItem().text(0) != '':
+                self.tab.message_text.setText('/ctcp {0} version'.format(self.tab.members_list.currentItem().text(0)))
+            elif context_menu == self.clientinfo_item and self.tab.members_list.currentItem().text(0) != '':
+                self.tab.message_text.setText('/ctcp {0} clientinfo'.format(self.tab.members_list.currentItem().text(0)))
         except:
             pass
 
@@ -1872,9 +1888,18 @@ class AboutProgramDlg(QtWidgets.QDialog, swiz_001):
         self.parent = parent
         settings.read('settings')
         self.ui.repo_btn.clicked.connect(self.repo_open)
+        self.ui.website_btn.clicked.connect(self.website_open)
+        self.ui.pyqt_version.setText(PYQT_VERSION_STR);
+        self.ui.qt_version.setText(QT_VERSION_STR);
+        self.ui.python_version.setText("{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]));
+        self.ui.platform.setText(platform.system());
+        self.ui.platform_version.setText(platform.version());
 
     def repo_open(self):
         webbrowser.open('https://github.com/tinelix/irc-client')
+
+    def website_open(self):
+        webbrowser.open('https://tinelix.github.io');
 
 class AdvancedSettingsDlg(QtWidgets.QDialog, ext_sett):
     def __init__(self, parent=None):
