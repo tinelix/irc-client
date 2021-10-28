@@ -1,5 +1,3 @@
-# Tinelix IRC Client for PyQt5
-# Licensed by GPLv3.
 
 def get():
     return {
@@ -59,6 +57,8 @@ def get():
         'mntion_a': 'Упомянуть',
         'whoism_a': 'О участнике',
         'pingctcp': 'Отправить пинг',
+        'ver_ctcp': 'Узнать версию клиента',
+        'clinctcp': 'О клиенте',
         'owners': 'Владельцы',
         'oprtors': 'Операторы',
         'members': 'Участники',
@@ -74,10 +74,20 @@ def get():
         'channelp': 'Канал:',
         'addit_bt': 'Подробнее',
         'prgrwait': 'Ожидание',
+        'mbgt_err': '<html><head/><body><p><span style=" font-weight:600;">Нам пока не удалось получить список участников.</span></p><p>Попробуйте включить отладчик парсинга в настройках и сообщить <a href="https://github.com/tinelix/irc-client/issues"><span style=" text-decoration: underline; color:#1d99f3;">разработчикам</span></a> об этой проблеме.</p><p>Строка в консоли должна быть в таком формате:<br/><span style=" font-size:7pt;">&lt;сервер&gt; &lt;код&gt; &lt;ваш_ник&gt; &lt;ник1&gt; &lt;ник2&gt;</span></p></body></html>',
+        'mbget_cl': 'Закрыть',
         'about_tt': 'О клиенте Tinelix IRC',
         'prog_ver': '<html><head/><body><p><span style=" font-weight:600;">Tinelix IRC Client </span><span style=" font-size:8pt;">(codename Flight, {0})</span></p></body></html>',
-        'free_sft': 'Написан на языке программирования Python, используется Qt {0} с PyQt5 {1}',
+        'usingcmp': 'О используемых компонентах',
+        'pyqt_ver': 'Версия PyQt5:',
+        'qt_fwver': 'Версия Qt:',
+        'python_v': 'Версия Python:',
+        'aboutsys': 'О системе',
+        'platform': 'Платформа:',
+        'ptfm_ver': 'Версия платформы:',
         'gpl_info': '<html><head/><body><p>Это свободное программное обеспечение с открытым исходным кодом, распространяемое в соответствии с условиями <a href="https://www.gnu.org/licenses/gnu-3.0.ru.html"><span style=" text-decoration: underline; color:#1d99f3;">GNU General Public License 3.0 (прочитать лицензию)</span></a><span style=" font-weight:600;"/>.<br><br>БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ВКЛЮЧАЯ КОММЕРЧЕСКУЮ ЦЕННОСТЬ.</body></html>',
         'repo_btn': 'Репозиторий',
+        'webs_btn': 'Веб-сайт',
         'profman': '<html><head/><body><p><span style=" font-size:11pt; font-weight:600;">Управление профилями</span></p></body></html>',
+        'parsdbg': 'Отладчик строк (вывод RAW-строк в консоль)',
 }

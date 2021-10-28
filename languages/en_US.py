@@ -1,5 +1,3 @@
-# Tinelix IRC Client for PyQt5
-# Licensed by GPLv3.
 
 def get():
     return {
@@ -62,6 +60,8 @@ def get():
         'mntion_a': 'Mention',
         'whoism_a': 'About member',
         'pingctcp': 'Send ping',
+        'ver_ctcp': 'Check client version',
+        'clinctcp': 'About client',
         'setsitem': 'Settings',
         'darkthcb': 'Dark theme',
         'msghstcb': 'Save messages history',
@@ -74,10 +74,20 @@ def get():
         'channelp': 'Channel:',
         'addit_bt': 'More',
         'prgrwait': 'Waiting',
+        'mbgt_err': '<html><head/><body><p><span style=" font-weight:600;">We have not yet able to get the members list.</span></p><p>Try turning on the parsing debugger and letting <a href="https://github.com/tinelix/irc-client/issues"><span style=" text-decoration: underline; color:#1d99f3;">the developers</span></a> about this issue.</p><p>String in the console should be in this format:<br/><span style=" font-size:7pt;">&lt;server&gt; &lt;code&gt; &lt;your_nick&gt; &lt;nick1&gt; &lt;nick2&gt;</span></p></body></html>',
+        'mbget_cl': 'Close',
         'about_tt': 'About Tinelix IRC Client',
         'prog_ver': '<html><head/><body><p><span style=" font-weight:600;">Tinelix IRC Client </span><span style=" font-size:8pt;">(codename Flight, {0})</span></p></body></html>',
-        'free_sft': 'Written on Python, using Qt {0} with PyQt5 {1}',
+        'usingcmp': 'About used components',
+        'pyqt_ver': 'PyQt5 version:',
+        'qt_fwver': 'Qt version:',
+        'python_v': 'Python version:',
+        'aboutsys': 'About system',
+        'platform': 'Platform:',
+        'ptfm_ver': 'Platform version:',
         'gpl_info': '<html><head/><body><p>This is free software with open source, distributed under the terms of the <a href="https://www.gnu.org/licenses/gnu-3.0.html"><span style=" text-decoration: underline; color:#1d99f3;">GNU General Public License 3.0 (read license)</span></a><span style=" font-weight:600\;"/>.<br><br>WITHOUT ANY WARRANTY, NOT EVEN FOR MERCHANTABILITY.</body></html>',
         'repo_btn': 'Repository',
+        'webs_btn': 'Website',
         'profman': '<html><head/><body><p><span style=" font-size:11pt; font-weight:600;">Profile managing</span></p></body></html>',
+        'parsdbg': 'Parsing debugger (RAW strings to console)',
 }

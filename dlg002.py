@@ -10,8 +10,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-# Tinelix IRC Client for PyQt5
-# Licensed by GPLv3.
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):

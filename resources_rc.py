@@ -6,9 +6,6 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-# Tinelix IRC Client for PyQt5
-# Licensed by GPLv3.
-
 from PyQt5 import QtCore
 
 qt_resource_data = b"\

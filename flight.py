@@ -1,9 +1,5 @@
 #!/usr/bin/python3
-
-# Tinelix IRC Client for PyQt5
-# Licensed by GPLv3.
-
-import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc
+import sys, PyQt5, dlg001, configparser, time, threading, socket, translator, webbrowser, os, base64, datetime, traceback, gc,  ssl, tracemalloc, platform
 import languages.ru_RU as ru_RU
 import languages.en_US as en_US
 from functools import *
@@ -27,8 +23,8 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '0.5.0 Beta'
-date = '2021-09-04'
+version = '1.1.0 Stable'
+date = '2021-10-28'
 
 init_required = 1
 
@@ -115,7 +111,6 @@ class Thread(QThread):
                     except:
                         self.socket.send(bytes("USER " + self.username + " " + self.username + " " + self.username + " :Member\n", self.encoding))
                     self.socket.send(bytes("NICK " + self.username + "\n", self.encoding))
-
                     while True:
                         self.text=self.socket.recv(8192)
                         self.ping = time.time()
@@ -185,10 +180,26 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         settings.read('settings')
         profiles.read('profiles')
         print('Tinelix codename Flight {0} ({1})\nDone!'.format(version, date))
-        self.ui.tabs.addTab(self.child_widget, 'Thread')
+        if settings.sections() == []:
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'Enabled', 'MsgFont': 'Consolas, 10', 'ParsingDebugger': 'Disabled'}
+            with open('settings', 'w') as configfile:
+                settings.write(configfile)
+            settings.read('settings')
+            profiles.read('profiles')
+            if settings['Main']['Language'] == 'Russian':
+                self.ui.tabs.addTab(self.child_widget, 'Поток')
+            else:
+               self.ui.tabs.addTab(self.child_widget, 'Thread')
+        else:
+            if settings['Main']['Language'] == 'Russian':
+                self.ui.tabs.addTab(self.child_widget, 'Поток')
+            else:
+               self.ui.tabs.addTab(self.child_widget, 'Thread')
+
         self.child_widget.chat_text.setVerticalScrollBar(self.child_widget.verticalScrollBar)
         self.child_widget.members_list.setVerticalScrollBar(self.child_widget.verticalScrollBar_2)
         self.child_widget.members_list.setVisible(False)
+        self.child_widget.list_frame.setVisible(False);
         try:
             font = QFont(settings['Main']['MsgFont'].split(', ')[0])
             try:
@@ -201,7 +212,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
             pass
 
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'Enabled', 'MsgFont': 'Consolas, 10'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'Enabled', 'MessagesHint': 'Disabled', 'MsgBacklight': 'Enabled', 'MsgFont': 'Consolas, 10', 'ParsingDebugger': 'Disabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
         else:
@@ -305,7 +316,7 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
         self.child_5.ui.language_combo.addItem('English')
         self.version = version
         if settings.sections() == []:
-            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'Disabled', 'MsgBacklight': 'False', 'MsgFont': 'Consolas'}
+            settings['Main'] = {'Language': 'Russian', 'ColorScheme': 'Orange', 'DarkTheme': 'Enabled', 'MsgHistory': 'True', 'MessagesHint': 'Disabled', 'MsgBacklight': 'False', 'MsgFont': 'Consolas', 'ParsingDebugger': 'Disabled'}
             with open('settings', 'w') as configfile:
                 settings.write(configfile)
             settings.read('settings')
@@ -333,6 +344,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.child_5.ui.save_msghistory_cb.setCheckState(2)
                 if settings['Main']['MsgBacklight'] == 'Disabled':
                     self.child_5.ui.backlight_cb.setCheckState(0)
+                else:
+                    self.child_5.ui.backlight_cb.setCheckState(2)
+                if settings['Main']['ParsingDebugger'] == 'Disabled':
+                    self.child_5.ui.parsing_debugger_cb.setCheckState(0)
                 else:
                     self.child_5.ui.backlight_cb.setCheckState(2)
                 self.child_5.ui.msgfont_combo.setCurrentFont(QFont(settings['Main']['MsgFont'].split(', ')[0]))
@@ -429,6 +444,10 @@ class mainform(QtWidgets.QMainWindow, Ui_MainWindow):
                 settings['Main']['MsgBacklight'] = 'Enabled'
             font = '{0}, {1}'.format(QFont(self.child_5.ui.msgfont_combo.currentFont()).family(), self.child_5.ui.font_size_sb.value())
             settings['Main']['MsgFont'] = font
+            if self.child_5.ui.parsing_debugger_cb.checkState() == 0:
+                settings['Main']['ParsingDebugger'] = 'Disabled'
+            else:
+                settings['Main']['ParsingDebugger'] = 'Enabled'
             with open('settings', 'w+') as configfile:
                 settings.write(configfile)
             translator.translate_001(self, self.child.ui, settings['Main']['Language'], en_US, ru_RU)
@@ -961,6 +980,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
         text = '{}'.format(status)
         msg_list = status.splitlines()
         for msg_line in msg_list:
+            try:
+                if settings.sections() != [] and settings['Main']['ParsingDebugger'] == 'Enabled':
+                    print(msg_line)
+            except:
+                pass
             if msg_line.startswith('PING'):
                 self.ping = time.time()
             elif msg_line.startswith('PONG'):
@@ -991,7 +1015,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         else:
                             tab.chat_text.setHtml('{0}<b>{1}:</b> Pong! <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), decoded_text[3].splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                         self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.startswith('{0} {1}'.format(self.server, 353)):
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 353') != -1:
                 try:
                     self.names_raw = msg_line.split(' ')[5:]
                     for nick in self.names_raw:
@@ -1005,7 +1029,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     exc_type, exc_value, exc_tb = sys.exc_info()
                     ex = traceback.format_exception(exc_type, exc_value, exc_tb)
                     print("\n".join(ex))
-            elif msg_line.startswith('{0} {1} {2} {3}'.format(self.server, 366, self.nickname, self.channel)):
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 366') != -1:
                 decoded_text = status.split(' ')
                 try:
                     if settings['Main']['Language'] == 'English':
@@ -1036,6 +1060,8 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             tab = self.parent.ui.tabs.widget(i)
                             tab.members_list.clear()
                             tab.members_list.addTopLevelItems([owners_list, operators_list, members_list])
+                            tab.members_list.setVisible(True);
+                            tab.list_frame.setVisible(False);
                     operators_list.setIcon(0, QIcon(':/icons/operator_icon.png'))
                     operators_list.setExpanded(True)
                     members_list.setIcon(0, QIcon(':/icons/member_icon.png'))
@@ -1049,19 +1075,19 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     exc_type, exc_value, exc_tb = sys.exc_info()
                     ex = traceback.format_exception(exc_type, exc_value, exc_tb)
                     print("\n".join(ex))
-            elif ' '.join(msg_line.split(' ')[0:2]).find('366') != -1:
-                pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('372') != -1:
+                    self.parent.child_widget.members_list.setVisible(False);
+                    self.parent.child_widget.list_frame.setVisible(True);
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 372') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
-                        tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:])))
+                        tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0:]).replace('<', '&#60;').replace('>', '&#62;')))
                     else:
-                        tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:])))
+                        tab.chat_text.setHtml('{0}\n<b><i>MOTD:</i></b> {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:]).replace('<', '&#60;').replace('>', '&#62;')))
                 except:
-                    tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
+                    tab.chat_text.setHtml('{0}\nMOTD: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0]).replace('<', '&#60;').replace('>', '&#62;')))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('371') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 371') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1071,7 +1097,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 except:
                     tab.chat_text.setHtml('{0}\nInfo: {1}'.format(tab.chat_text.toHtml(), "".join(" ".join(msg_line.split(' ')[3:]).splitlines()[0])))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('671') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 671') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1081,13 +1107,13 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 except:
                     tab.chat_text.setHtml('{0}\n{1} using a TLS/SSL connection.'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3])))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('318') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 318') != -1:
                 pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('321') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 321') != -1:
                 pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('374') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 374') != -1:
                 pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('322') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 322') != -1 or ' '.join(msg_line.split(' ')[0:2]).find(' 353') != -1:
                 try:
                     tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                     if settings['Main']['DarkTheme'] == 'Disabled':
@@ -1112,7 +1138,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     self.channels.update({msg_line.split(' ')[3]: {'name': msg_line.split(' ')[3], 'topic': " ".join(msg_line.split(' ')[5:]), 'members': int(msg_line.split(' ')[4])}})
                 except Exception as e:
                     pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('323') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 323') != -1:
                 try:
                     self.progr.close()
                 except:
@@ -1125,14 +1151,14 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         else:
                             tab.chat_text.setHtml('{0}<b>{1}</b><br>Topic: {2}<br>Members: {3}<br>-------------------------------------'.format(tab.chat_text.toHtml(), self.channels[channel]['name'], self.channels[channel]['topic'], self.channels[channel]['members']))
                     except:
-                        tab.chat_text.setHtml('{0}{1}<br>Topic: {2}<br>Members: {3}<br>------------------------------------'.format(tab.chat_text.toHtml(), self.channels[channel]['name'], self.channels[channel]['topic'], self.channels[channel]['members']))
+                        tab.chat_text.setHtml('{0}{1}<br>Topic: {2}<br>Members: {3}<br>------------------------------------'.format(tab.chat_text.toHtml(), self.channels[channel]['name'].replace('<', '&#60;').replace('>', '&#62;'), self.channels[channel]['topic'].replace('<', '&#60;').replace('>', '&#62;'), self.channels[channel]['members']))
                 self.channels = {}
                 self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('376') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 376') != -1:
                 pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('378') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 378') != -1:
                 pass
-            elif ' '.join(msg_line.split(' ')[0:2]).find('312') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 312') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1142,7 +1168,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 except:
                     tab.chat_text.setHtml('{0}{1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:])))
                 self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('311') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 311') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1153,7 +1179,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 except:
                     tab.chat_text.setHtml('{0}{1} ({2}@{3})<br>Real name: {4}<br>------------------------------------'.format(tab.chat_text.toHtml(), msg_line.split(' ')[3], msg_line.split(' ')[4], msg_line.split(' ')[5], ' '.join(msg_line.split(' ')[7:]).splitlines()[0]))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('332') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 332') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1166,7 +1192,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     tab.chat_text.setHtml('{0}\nTopic: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[3:]).replace('http//', 'http://').replace('https//', 'https://')))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('333') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 333') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1179,7 +1205,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     tab.chat_text.setHtml('{0}\nTopic set by {1} ({2})'.format(tab.chat_text.toHtml(), msg_line.split(' ')[4], datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('319') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 319') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1192,7 +1218,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     tab.chat_text.setHtml('{0}\nMutual channels: {1}'.format(tab.chat_text.toHtml(), " ".join(msg_line.split(' ')[4:]).replace('@', '').replace('~', '').replace('&', '')))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif ' '.join(msg_line.split(' ')[0:2]).find('317') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' 317') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     if settings['Main']['MsgBacklight'] == 'Disabled':
@@ -1205,18 +1231,22 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     tab.chat_text.setHtml('{0}\n{1} idle, last logon time - {2}</span>'.format(tab.chat_text.toHtml(), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[4])).strftime('%H:%M:%S'), datetime.datetime.fromtimestamp(int(msg_line.split(' ')[5])).strftime('%Y-%m-%d %H:%M:%S')))
                 tab.chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.find('PRIVMSG') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find('PRIVMSG') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
-                    if decoded_text[2] == 'PRIVMSG':
+                    if decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001VERSION\001":
+                        self.socket.send(bytes("NOTICE {0} \001VERSION Tinelix IRC Client {1} ({2}). PyQt5 version: {3} | Qt version: {4} | Python version: {5}.{6}.{7} | Platform: {8} | Platform version: {9}\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR, sys.version_info[0], sys.version_info[1], sys.version_info[2], platform.system(), platform.version()), self.encoding));
+                    elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001CLIENTINFO\001":
+                        self.socket.send(bytes("NOTICE {0} \001CLIENTINFO Tinelix IRC Client {1} for Python ({2}). Powered by PyQt5 {3} with Qt {4}. Source code repository link: https://github.com/tinelix/irc-client (GNU GPL 3.0)\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR), self.encoding));
+                    elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] != "\001VERSION\001" and decoded_text[4] != "\001CLIENTINFO\001":
                         for i in range(self.parent.ui.tabs.count()):
                             if self.parent.ui.tabs.tabText(i) == decoded_text[3]:
                                 tab = self.parent.ui.tabs.widget(i)
                                 try:
                                     if settings['Main']['MsgBacklight'] == 'Disabled':
-                                        tab.chat_text.setHtml('{0}{1}: {2} ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}{1}: {2} ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).replace('<', '&#60;').replace('>', '&#62;').splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                     else:
-                                        tab.chat_text.setHtml('{0}<b>{1}:</b> {2} <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")).replace('https//', 'https://').replace('http//', 'http://').replace('ftp//', 'ftp://'))
+                                        tab.chat_text.setHtml('{0}<b>{1}:</b> {2} <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).replace('<', '&#60;').replace('>', '&#62;').splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")).replace('https//', 'https://').replace('http//', 'http://').replace('ftp//', 'ftp://'))
                                 except:
                                     pass
                                 if ' '.join(decoded_text[4:]).splitlines()[0].startswith(self.nickname):
@@ -1244,7 +1274,36 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     self.parent.child_widget.chat_text.setHtml('{0}<br>{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
                     self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.find('MODE') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find('NOTICE') != -1:
+                decoded_text = status.replace('!', ' ').split(' ')
+                try:
+                    if decoded_text[2] == 'NOTICE' and decoded_text[4] == "\001VERSION":
+                        tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                        if settings['Main']['MsgBacklight'] == 'Disabled':
+                            tab.chat_text.setHtml('{0}\n{1}: {2} (CTCP | {3})'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[5:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        else:
+                            tab.chat_text.setHtml('{0}\n<b>{1}:</b> {2} <span style="font-size: 10px">(CTCP-VERSION | {3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[5:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
+                    elif decoded_text[2] == 'NOTICE' and decoded_text[4] == "\001CLIENTINFO":
+                        tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                        if settings['Main']['MsgBacklight'] == 'Disabled':
+                            tab.chat_text.setHtml('{0}\n{1}: {2} (CTCP-CLIENTINFO | {3})'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[5:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        else:
+                            tab.chat_text.setHtml('{0}\n<b>{1}:</b> {2} <span style="font-size: 10px">(CTCP-CLIENTINFO | {3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[5:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                    elif decoded_text[2] == 'NOTICE':
+                        tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
+                        if settings['Main']['MsgBacklight'] == 'Disabled':
+                            tab.chat_text.setHtml('{0}\n{1} sent a notification: {2} ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                        else:
+                            tab.chat_text.setHtml('{0}\n<b>{1}</b> sent a notification: {2} <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(decoded_text[4:]).splitlines()[0], datetime.datetime.now().strftime("%H:%M:%S")))
+                    self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
+                except Exception as e:
+                        exc_type, exc_value, exc_tb = sys.exc_info()
+                        ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                        print("\n".join(ex))
+                        self.parent.child_widget.chat_text.setHtml('{0}\n{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
+                        self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
+            elif ' '.join(msg_line.split(' ')[0:2]).find('MODE') != -1:
                 tab = self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex())
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
@@ -1257,7 +1316,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     self.parent.child_widget.chat_text.setHtml('{0}\n{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
                     self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.find('JOIN') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' JOIN') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'JOIN':
@@ -1288,7 +1347,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     exc_type, exc_value, exc_tb = sys.exc_info()
                     ex = traceback.format_exception(exc_type, exc_value, exc_tb)
                     print("\n".join(ex))
-            elif msg_line.find('PART') != -1:
+            elif ' '.join(msg_line.split(' ')[0:2]).find(' PART') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[0] == self.nickname:
@@ -1303,9 +1362,9 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                         if msg_line.split(' ').index(word) > 2 and word != '':
                                             reason.append(word.splitlines()[0])
                                     if settings['Main']['MsgBacklight'] == 'Disabled' and reason != []:
-                                        tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}\n{1} left the {2} channel with reason: {3}. ({4})'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason).replace('<', '&#60;').replace('>', '&#62;'), datetime.datetime.now().strftime("%H:%M:%S")))
                                     elif settings['Main']['MsgBacklight'] == 'Enabled' and reason != []:
-                                        tab.chat_text.setHtml('{0}<b>{1}</b> left the {2} channel with reason: <i>{3}</i>. <span style="font-size: 10px">({4})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> left the {2} channel with reason: <i>{3}</i>. <span style="font-size: 10px">({4})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], ' '.join(reason).replace('<', '&#60;').replace('>', '&#62;'), datetime.datetime.now().strftime("%H:%M:%S")))
                                     elif settings['Main']['MsgBacklight'] == 'Enabled':
                                         tab.chat_text.setHtml('{0}<b>{1}</b> left the {2} channel. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], decoded_text[3], datetime.datetime.now().strftime("%H:%M:%S")))
                                     else:
@@ -1327,7 +1386,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print("\n".join(ex))
                     self.parent.child_widget.chat_text.setHtml('{0}<br>{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
                     self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.find('QUIT') != -1:
+            elif msg_line.find(' QUIT') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'QUIT':
@@ -1342,7 +1401,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                                     if settings['Main']['MsgBacklight'] == 'Disabled' and reason != []:
                                         tab.chat_text.setHtml('{0}\n{1} quited with reason: {2}. ({3})'.format(tab.chat_text.toHtml(), decoded_text[0], " ".join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
                                     elif settings['Main']['MsgBacklight'] == 'Enabled' and reason != []:
-                                        tab.chat_text.setHtml('{0}<b>{1}</b> quited with reason: <i>{2}</i>. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(reason), datetime.datetime.now().strftime("%H:%M:%S")))
+                                        tab.chat_text.setHtml('{0}<b>{1}</b> quited with reason: <i>{2}</i>. <span style="font-size: 10px">({3})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], ' '.join(reason).replace('<', '&#60;').replace('>', '&#62;'), datetime.datetime.now().strftime("%H:%M:%S")))
                                     elif settings['Main']['MsgBacklight'] == 'Enabled':
                                         tab.chat_text.setHtml('{0}<b>{1}</b> quited. <span style="font-size: 10px">({2})</span>'.format(tab.chat_text.toHtml(), decoded_text[0], datetime.datetime.now().strftime("%H:%M:%S")))
                                     else:
@@ -1362,7 +1421,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     print(e)
                     self.parent.child_widget.chat_text.setHtml('{0}\n{1}'.format(self.parent.child_widget.chat_text.toHtml(), msg_line))
                     self.parent.child_widget.chat_text.moveCursor(QTextCursor.End)
-            elif msg_line.find('NICK') != -1:
+            elif msg_line.find(' NICK') != -1:
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'NICK':
@@ -1419,7 +1478,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                             if msg_line.index(string) > 1 and message_code != []:
                                 message_splited.append(string.splitlines()[0])
                         if message_code != [] and (self.channels == {} and self.owners == [] and self.operators == [] and self.members == []):
-                            tab.chat_text.setHtml('{0}\nCode {1:03d}: {2}'.format(tab.chat_text.toHtml(), message_code[0], ' '.join(message_splited[2:])))
+                            tab.chat_text.setHtml('{0}\nCode {1:03d}: {2}'.format(tab.chat_text.toHtml(), message_code[0], ' '.join(message_splited[2:]).replace('<', '&#60;').replace('>', '&#62;')))
                         elif (self.channels == {} and self.owners == [] and self.operators == [] and self.members == []):
                             tab.chat_text.setHtml('{0}\n{1}'.format(tab.chat_text.toHtml(), msg_line))
                         tab.chat_text.moveCursor(QTextCursor.End)
@@ -1429,17 +1488,25 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         os.makedirs('history')
                         for i in range(self.parent.ui.tabs.count()):
                             with open('history/irc_{0}_{1}_{2}.html'.format(self.parent.ui.tabs.tabText(i), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                                f.write(self.parent.ui.tabs.widget(i).chat_text.toHtml())
+                                if settings['Main']['Language'] == 'Russian':
+                                    f.write("<!DOCTYPE HTML>\n<html>\n<head>\n<link href=\"https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900\" rel=\"stylesheet\">\n<title>История сообщений</title>\n<style>\nbody |(\nfont-family: \"Roboto\", \"Arial\";\nmargin: 12px;\n|);\n</style>\n</head>\n<body>\n<h3 style=\"margin-top: 12px; margin-bottom: 0px;\">История сообщений</h3><i style=\"font-size: 12px; color: #6a6a6a;\">{0} • {1} • {2}</i>\n<p><div style=\"font-family: {3}, Courier New; border-radius: 8px; background-color: #ededed; padding: 10px; border-radius: 8px;\">\n{4}\n</div>\n</body>\n</html>".format(self.now.strftime('%Y-%m-%d %H:%M:%S'), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.parent.ui.tabs.tabText(i), settings['Main']['MsgFont'].split(", ")[0], self.parent.ui.tabs.widget(i).chat_text.toPlainText().replace("\n", "<br>")).replace("|(", "{").replace("|)", "}"));
+                                else:
+                                    f.write("<!DOCTYPE HTML>\n<html>\n<head>\n<link href=\"https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900\" rel=\"stylesheet\">\n<title>Messages history</title>\n<style>\nbody |(\nfont-family: \"Roboto\", \"Arial\";\nmargin: 12px;\n|);\n</style>\n</head>\n<body>\n<h3 style=\"margin-top: 12px; margin-bottom: 0px;\">Messages history</h3><i style=\"font-size: 12px; color: #6a6a6a;\">{0} • {1} • {2}</i>\n<p><div style=\"font-family: {3}, Courier New; border-radius: 8px; background-color: #ededed; padding: 10px; border-radius: 8px;\">\n{4}\n</div>\n</body>\n</html>".format(self.now.strftime('%Y-%m-%d %H:%M:%S'), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.parent.ui.tabs.tabText(i), settings['Main']['MsgFont'].split(", ")[0], self.parent.ui.tabs.widget(i).chat_text.toPlainText().replace("\n", "<br>")).replace("|(", "{").replace("|)", "}"));
                         self.parent.ui.msg_history.triggered.disconnect()
                         self.parent.ui.msg_history.triggered.connect(self.show_channel_history)
                     else:
                         for i in range(self.parent.ui.tabs.count()):
                             with open('history/irc_{0}_{1}_{2}.html'.format(self.parent.ui.tabs.tabText(i), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.now.strftime('%Y-%m-%d_%H.%M.%S')), 'w+') as f:
-                                f.write(self.parent.ui.tabs.widget(i).chat_text.toHtml())
+                                if settings['Main']['Language'] == 'Russian':
+                                    f.write("<!DOCTYPE HTML>\n<html>\n<head>\n<link href=\"https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900\" rel=\"stylesheet\">\n<title>История сообщений</title>\n<style>\nbody |(\nfont-family: \"Roboto\", \"Arial\";\nmargin: 12px;\n|);\n</style>\n</head>\n<body>\n<h3 style=\"margin-top: 12px; margin-bottom: 0px;\">История сообщений</h3><i style=\"font-size: 12px; color: #6a6a6a;\">{0} • {1} • {2}</i>\n<p><div style=\"font-family: {3}, Courier New; border-radius: 8px; background-color: #ededed; padding: 10px; border-radius: 8px;\">\n{4}\n</div>\n</body>\n</html>".format(self.now.strftime('%Y-%m-%d %H:%M:%S'), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.parent.ui.tabs.tabText(i), settings['Main']['MsgFont'].split(", ")[0], self.parent.ui.tabs.widget(i).chat_text.toPlainText().replace("\n", "<br>")).replace("|(", "{").replace("|)", "}"));
+                                else:
+                                    f.write("<!DOCTYPE HTML>\n<html>\n<head>\n<link href=\"https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900\" rel=\"stylesheet\">\n<title>Messages history</title>\n<style>\nbody |(\nfont-family: \"Roboto\", \"Arial\";\nmargin: 12px;\n|);\n</style>\n</head>\n<body>\n<h3 style=\"margin-top: 12px; margin-bottom: 0px;\">Messages history</h3><i style=\"font-size: 12px; color: #6a6a6a;\">{0} • {1} • {2}</i>\n<p><div style=\"font-family: {3}, Courier New; border-radius: 8px; background-color: #ededed; padding: 10px; border-radius: 8px;\">\n{4}\n</div>\n</body>\n</html>".format(self.now.strftime('%Y-%m-%d %H:%M:%S'), str(self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text()), self.parent.ui.tabs.tabText(i), settings['Main']['MsgFont'].split(", ")[0], self.parent.ui.tabs.widget(i).chat_text.toPlainText().replace("\n", "<br>")).replace("|(", "{").replace("|)", "}"));
                         self.parent.ui.msg_history.triggered.disconnect()
                         self.parent.ui.msg_history.triggered.connect(self.show_channel_history)
             except:
-                pass
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                ex = traceback.format_exception(exc_type, exc_value, exc_tb)
+                print("\n".join(ex))
 
     def irc_reconnect(self):
         self.thread.start()
@@ -1482,12 +1549,23 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                     self.tab.members_list.setStyleSheet('selection-background-color: #a14b00;')
                     self.tab.verticalScrollBar.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
                     self.tab.verticalScrollBar_2.setStyleSheet('QScrollBar:vertical {border: 0px solid;\nbackground: rgb(43, 43, 43);\nwidth: 15px;\nmargin: 16px 0 16px 0;\n}\nQScrollBar::handle:vertical {\nbackground: rgb(161, 75, 0);\nborder-width: 2px;\nborder-radius: 10px;\n}\n\nQScrollBar::add-line:vertical {\nborder: 0px solid;\nbackground-color: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: bottom;\nsubcontrol-origin: margin;\nimage: url(:/arrows/up_arrow_dark.png);\n}\n\nQScrollBar::sub-line:vertical {\nborder: 0px solid;\nbackground: rgb(43, 43, 43);\nheight: 16px;\nsubcontrol-position: top;\nsubcontrol-origin: margin;\nimage: url(:/arrows/down_arrow_dark.png);\n}\n\nQScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\nbackground: none;\n}')
+
+                if settings.sections != [] and settings['Main']['Language'] == 'Russian':
+                    self.tab.error_getting_member_list.setText(ru_RU.get()['mbgt_err'])
+                    self.tab.close_panel_btn.setText(ru_RU.get()['mbget_cl'])
+                else:
+                    self.tab.error_getting_member_list.setText(en_US.get()['mbgt_err'])
+                    self.tab.close_panel_btn.setText(en_US.get()['mbget_cl'])
+
                 self.tab.members_list.setContextMenuPolicy(Qt.CustomContextMenu)
                 self.tab.members_list.customContextMenuRequested.connect(self.call_member_cm)
+                self.tab.members_list.setVisible(False);
+                self.tab.list_frame.setVisible(True);
                 self.member_context_menu = QMenu(self)
                 self.parent.ui.tabs.addTab(self.tab, self.channel)
                 self.tab.chat_text.setVerticalScrollBar(self.tab.verticalScrollBar)
                 self.tab.members_list.setVerticalScrollBar(self.tab.verticalScrollBar_2)
+                self.tab.close_panel_btn.clicked.connect(self.close_member_error_panel)
                 self.tab.message_text.setEnabled(True)
                 self.tab.send_msg_btn.setEnabled(False)
                 self.tab.send_msg_btn.clicked.connect(self.send_msg)
@@ -1566,6 +1644,11 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.socket.send(bytes('PING {0}\r\n'.format(msg_list[1]), self.encoding))
             except:
                 pass
+        elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/ctcp') and len(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')) == 3:
+            if(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[2] == 'version'):
+                self.socket.send(bytes('PRIVMSG {0} \001VERSION\001\r\n'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[1]), self.encoding))
+            elif(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[2] == 'clientinfo'):
+                self.socket.send(bytes('PRIVMSG {0} \001CLIENTINFO\001\r\n'.format(self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().split(' ')[1]), self.encoding))
         elif self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text() == '/disconnect' or self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text().startswith('/quit'):
             settings.read('settings')
             self.socket.send(bytes('QUIT {0}\r\n'.format(self.quiting_msg), self.encoding))
@@ -1597,7 +1680,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 exc_type, exc_value, exc_tb = sys.exc_info()
                 ex = traceback.format_exception(exc_type, exc_value, exc_tb)
                 print("\n".join(ex))
-        elif self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()) != 'Thread':
+        elif self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()) != 'Thread' and self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()) != 'Поток':
             for i in range(self.parent.ui.tabs.count()):
                 if self.parent.ui.tabs.tabText(i) == self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()):
                     self.socket.send(bytes('PRIVMSG {0} :{1}\r\n'.format(self.parent.ui.tabs.tabText(i), self.parent.ui.tabs.widget(self.parent.ui.tabs.currentIndex()).message_text.text()), self.encoding))
@@ -1642,7 +1725,7 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
 
     def show_channel_history(self):
         try:
-            webbrowser.open('history/irc_{0}_{1}_{2}.html'.format(self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')))
+            webbrowser.open('file://{0}/history/irc_{1}_{2}_{3}.html'.format(os.getcwd(), self.parent.ui.tabs.tabText(self.parent.ui.tabs.currentIndex()), self.ui.tableWidget.item(self.ui.tableWidget.currentRow(), 0).text(), self.now.strftime('%Y-%m-%d_%H.%M.%S')))
         except Exception as e:
             print(e)
 
@@ -1680,10 +1763,14 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                         self.mention_item = self.member_context_menu.addAction(en_US.get()['mntion_a'])
                         self.whoism_item = self.member_context_menu.addAction(en_US.get()['whoism_a'])
                         self.ping_item = self.member_context_menu.addAction(en_US.get()['pingctcp'])
+                        self.check_client_version_item = self.member_context_menu.addAction(en_US.get()['ver_ctcp'])
+                        self.clientinfo_item = self.member_context_menu.addAction(en_US.get()['clinctcp'])
                     else:
                         self.mention_item = self.member_context_menu.addAction(ru_RU.get()['mntion_a'])
                         self.whoism_item = self.member_context_menu.addAction(ru_RU.get()['whoism_a'])
                         self.ping_item = self.member_context_menu.addAction(ru_RU.get()['pingctcp'])
+                        self.check_client_version_item = self.member_context_menu.addAction(ru_RU.get()['ver_ctcp'])
+                        self.clientinfo_item = self.member_context_menu.addAction(ru_RU.get()['clinctcp'])
                 except:
                     pass
                 context_menu = self.member_context_menu.exec_(self.tab.members_list.mapToGlobal(QPoint(-self.member_context_menu.width() - 2, -0)))
@@ -1696,8 +1783,15 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 self.tab.message_text.setText('/whois {0}'.format(self.tab.members_list.currentItem().text(0)))
             elif context_menu == self.ping_item and self.tab.members_list.currentItem().text(0) != '':
                 self.tab.message_text.setText('/ping {0}'.format(self.tab.members_list.currentItem().text(0)))
+            elif context_menu == self.check_client_version_item and self.tab.members_list.currentItem().text(0) != '':
+                self.tab.message_text.setText('/ctcp {0} version'.format(self.tab.members_list.currentItem().text(0)))
+            elif context_menu == self.clientinfo_item and self.tab.members_list.currentItem().text(0) != '':
+                self.tab.message_text.setText('/ctcp {0} clientinfo'.format(self.tab.members_list.currentItem().text(0)))
         except:
             pass
+
+    def close_member_error_panel(self):
+        self.tab.list_frame.setVisible(False)
 
     def edit_item(self):
         swiz003 = SettingsWizard003()
@@ -1831,9 +1925,18 @@ class AboutProgramDlg(QtWidgets.QDialog, swiz_001):
         self.parent = parent
         settings.read('settings')
         self.ui.repo_btn.clicked.connect(self.repo_open)
+        self.ui.website_btn.clicked.connect(self.website_open)
+        self.ui.pyqt_version.setText(PYQT_VERSION_STR);
+        self.ui.qt_version.setText(QT_VERSION_STR);
+        self.ui.python_version.setText("{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]));
+        self.ui.platform.setText(platform.system());
+        self.ui.platform_version.setText(platform.version());
 
     def repo_open(self):
         webbrowser.open('https://github.com/tinelix/irc-client')
+
+    def website_open(self):
+        webbrowser.open('https://tinelix.github.io');
 
 class AdvancedSettingsDlg(QtWidgets.QDialog, ext_sett):
     def __init__(self, parent=None):

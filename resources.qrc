@@ -1,6 +1,3 @@
-<!--Tinelix IRC Client for PyQt5
-Licensed by GPLv3.-->
-
 <RCC>
   <qresource prefix="icons">
     <file>member_icon.png</file>
