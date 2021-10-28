@@ -23,7 +23,7 @@ from mention_notif import Ui_Dialog as mention_notif_window
 settings = configparser.ConfigParser()
 profiles = configparser.ConfigParser()
 
-version = '1.1.0 Stable'
+version = '1.1.1 Stable'
 date = '2021-10-28'
 
 init_required = 1
@@ -1235,7 +1235,10 @@ class SettingsWizard001(QtWidgets.QDialog, swiz_001):
                 try:
                     decoded_text = status.replace('!', ' ').split(' ')
                     if decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001VERSION\001":
-                        self.socket.send(bytes("NOTICE {0} \001VERSION Tinelix IRC Client {1} ({2}). PyQt5 version: {3} | Qt version: {4} | Python version: {5}.{6}.{7} | Platform: {8} | Platform version: {9}\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR, sys.version_info[0], sys.version_info[1], sys.version_info[2], platform.system(), platform.version()), self.encoding));
+                        if platform.system() == "Darwin":
+                            self.socket.send(bytes("NOTICE {0} \001VERSION Tinelix IRC Client {1} ({2}). PyQt5 version: {3} | Qt version: {4} | Python version: {5}.{6}.{7} | Platform: {8} | Platform version: {9}\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR, sys.version_info[0], sys.version_info[1], sys.version_info[2], platform.system(), " ".join(platform.version().split(" ")[0:2])), self.encoding));
+                        else:
+                            self.socket.send(bytes("NOTICE {0} \001VERSION Tinelix IRC Client {1} ({2}). PyQt5 version: {3} | Qt version: {4} | Python version: {5}.{6}.{7} | Platform: {8} | Platform version: {9}\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR, sys.version_info[0], sys.version_info[1], sys.version_info[2], platform.system(), platform.version()), self.encoding));
                     elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] == "\001CLIENTINFO\001":
                         self.socket.send(bytes("NOTICE {0} \001CLIENTINFO Tinelix IRC Client {1} for Python ({2}). Powered by PyQt5 {3} with Qt {4}. Source code repository link: https://github.com/tinelix/irc-client (GNU GPL 3.0)\001\r\n".format(decoded_text[0], version, date, PYQT_VERSION_STR, QT_VERSION_STR), self.encoding));
                     elif decoded_text[2] == 'PRIVMSG' and decoded_text[4] != "\001VERSION\001" and decoded_text[4] != "\001CLIENTINFO\001":
