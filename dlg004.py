@@ -205,7 +205,7 @@ class Ui_Dialog(object):
         self.about_software_platform.setTitle(_translate("Dialog", "О системе"))
         self.platform_label.setText(_translate("Dialog", "Платформа:"))
         self.platform_version_label.setText(_translate("Dialog", "Версия платформы:"))
-        self.copyright_label.setText(_translate("Dialog", "© 2021 Dmitry Tretyakov (aka. Tinelix)"))
+        self.copyright_label.setText(_translate("Dialog", "© 2022 Dmitry Tretyakov (aka. Tinelix)"))
         self.repo_btn.setText(_translate("Dialog", "Репозиторий"))
         self.website_btn.setText(_translate("Dialog", "Веб-сайт"))
 import resources_rc
